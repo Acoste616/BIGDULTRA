@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import uvicorn
 import json
-import uuid
+from uuid import UUID, uuid4
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
@@ -183,31 +183,66 @@ async def analyze_customer(request: CustomerAnalysisRequest):
                     "history": []  # Historia przechowywana w interaction_logs
                 }
         
-        # Analiza przez Ollama
-        analysis = await ollama_client.analyze_customer(
+        # Pobierz dane z bazy, aby przekazać je do AI jako kontekst
+        all_archetypes = await db_service.get_all_archetypes()
+        all_objections = await db_service.get_all_objections()
+        all_playbooks = await db_service.get_all_playbooks()
+
+        # Dodaj dane do kontekstu sesji
+        session_context['db_data'] = {
+            "archetypes": all_archetypes,
+            "objections": all_objections,
+            "playbooks": all_playbooks
+        }
+        if request.newest_input:
+            session_context['newest_input'] = request.newest_input
+
+        # Analiza przez Ollama - Używamy V2 dla lepszej jakości
+        analysis = await ollama_client.analyze_customer_v2(
             customer_input=request.input_text,
             session_context=session_context
         )
+
+        # Sprawdź czy AI zasugerowało nowy archetyp
+        if analysis.get("new_archetype_suggestion"):
+            suggestion = analysis["new_archetype_suggestion"]
+            await db_service.create_suggestion({
+                "session_id": request.session_id,
+                "suggestion_type": "KRYTYCZNA",
+                "priority": "Wysoki",
+                "title": f"Nowy sub-archetyp: {suggestion.get('new_name')}",
+                "reasoning": suggestion.get('reasoning'),
+                "proposed_data": suggestion,
+                "confidence_score": analysis.get("archetype", {}).get("confidence", 0.5)
+            })
         
         # Pobierz dane z bazy dla wzbogacenia
         archetype_data = None
         if analysis.get("archetype", {}).get("id"):
-            archetype_data = await db_service.get_archetype(
-                analysis["archetype"]["id"]
-            )
+            try:
+                archetype_id = UUID(analysis["archetype"]["id"])
+                archetype_data = await db_service.get_archetype(archetype_id)
+            except (ValueError, TypeError):
+                pass  # Ignore if ID is not a valid UUID
         
         objections_data = []
         for obj in analysis.get("objections", []):
             if obj.get("id"):
-                obj_data = await db_service.get_objection(obj["id"])
-                if obj_data:
-                    objections_data.append(obj_data)
+                try:
+                    objection_id = UUID(obj["id"])
+                    obj_data = await db_service.get_objection(objection_id)
+                    if obj_data:
+                        objections_data.append(obj_data)
+                except (ValueError, TypeError):
+                    continue
         
         playbook_data = None
         if analysis.get("strategy", {}).get("playbook_id"):
-            playbook_data = await db_service.get_playbook(
-                analysis["strategy"]["playbook_id"]
-            )
+            try:
+                playbook_id = UUID(analysis["strategy"]["playbook_id"])
+                playbook_data = await db_service.get_playbook(playbook_id)
+            except (ValueError, TypeError):
+                pass
         
         # Zapisz analizę w interaction_logs
         await db_service.log_interaction({
@@ -406,6 +441,38 @@ async def get_competitor_products():
     """Pobiera produkty konkurencji"""
     products = await db_service.get_competitor_products()
     return {"products": products}
+
+@app.get("/data/market-data")
+async def get_market_data():
+    """Pobiera dane rynkowe"""
+    market_data = await db_service.get_market_data()
+    return {"market_data": market_data}
+
+@app.get("/data/promotions")
+async def get_promotions():
+    """Pobiera aktywne promocje"""
+    promotions = await db_service.get_promotions()
+    return {"promotions": promotions}
+
+@app.get("/data/seasonal-patterns")
+async def get_seasonal_patterns():
+    """Pobiera wzorce sezonowe"""
+    patterns = await db_service.get_seasonal_patterns()
+    return {"seasonal_patterns": patterns}
+
+@app.get("/data/buying-signals")
+async def get_buying_signals():
+    """Pobiera sygnały kupna"""
+    signals = await db_service.get_buying_signals()
+    return {"buying_signals": signals}
+
+@app.get("/data/scoring-config")
+async def get_scoring_config():
+    """Pobiera aktywną konfigurację scoringu"""
+    config = await db_service.get_scoring_config()
+    if not config:
+        raise HTTPException(status_code=404, detail="Aktywna konfiguracja scoringu nie znaleziona")
+    return {"scoring_config": config}
 
 @app.get("/stats/dashboard")
 async def get_dashboard_stats():

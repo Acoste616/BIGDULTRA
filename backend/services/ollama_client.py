@@ -401,45 +401,79 @@ Wygeneruj strategię sprzedażową (JSON):"""
             Analiza z archetypem, obiekcjami, strategią
         """
         
+        db_data = session_context.get('db_data', {})
+        archetypes_list = json.dumps(db_data.get('archetypes', []), ensure_ascii=False, indent=2)
+        objections_list = json.dumps(db_data.get('objections', []), ensure_ascii=False, indent=2)
+        playbooks_list = json.dumps(db_data.get('playbooks', []), ensure_ascii=False, indent=2)
+
+        newest_input_text = session_context.get('newest_input', customer_input)
+
         prompt = f"""
 ANALIZA KLIENTA TESLA:
 
-Wypowiedź klienta: "{customer_input}"
+DOSTĘPNE DANE Z BAZY:
+---
+Archetypy:
+{archetypes_list}
+---
+Obiekcje:
+{objections_list}
+---
+Playbooki:
+{playbooks_list}
+---
+
+AKTUALNA SYTUACJA:
+Całość rozmowy: "{customer_input}"
+NAJNOWSZA WYPOWIEDŹ (skup się na tym): "{newest_input_text}"
 
 Kontekst sesji:
 - Profil: {json.dumps(session_context.get('profile', {}), ensure_ascii=False)}
 - Historia: {json.dumps(session_context.get('history', [])[-5:], ensure_ascii=False)}
 
 ZADANIA:
-1. Zidentyfikuj archetyp klienta (1-10) z confidence score
-2. Wykryj obiekcje (jawne i ukryte)
-3. Zaproponuj strategię sprzedaży
-4. Wygeneruj pytania pogłębiające
-5. Oceń prawdopodobieństwo zakupu
+Twoim nadrzędnym zadaniem jest zareagować na NAJNOWSZĄ WYPOWIEDŹ klienta, biorąc pod uwagę CAŁOŚĆ ROZMOWY i dostępne dane.
 
-Odpowiedz w formacie JSON:
+1. Przeanalizuj NAJNOWSZĄ WYPOWIEDŹ w kontekście historii i dostępnych danych.
+2. Zaktualizuj lub potwierdź archetyp klienta z listy Archetypy. Zwróć jego DOKŁADNE id i name.
+3. **Dynamiczna Granulacja**: Jeśli pewność ('confidence') jest niska (< 0.6) i widzisz unikalny wzorzec, który nie pasuje do żadnego archetypu, zaproponuj nowy sub-archetyp w polu `new_archetype_suggestion`. W przeciwnym razie zostaw to pole jako `null`.
+4. Zidentyfikuj NOWE obiekcje z listy Obiekcje, które pojawiły się w najnowszej wypowiedzi.
+5. Wygeneruj 'quick_reply': krótką, trafną odpowiedź, która BEZPOŚREDNIO odnosi się do najnowszej wypowiedzi.
+6. Wygeneruj pytania pogłębiające ('questions'), które wynikają z najnowszej wypowiedzi.
+7. Zaktualizuj prawdopodobieństwo zakupu ('purchase_probability', 0.0-1.0).
+8. Zaproponuj następne kroki ('next_actions') w oparciu o NOWĄ sytuację.
+9. Dopasuj najlepszy playbook z listy Playbooki. Zwróć DOKŁADNE playbook_id.
+
+Odpowiedz w formacie JSON, używając DOKŁADNYCH wartości 'id' i 'playbook_id' z dostarczonych list. ID dla archetypu i obiekcji jest kluczem 'id', a dla playbooka kluczem 'id' (mapowane na playbook_id w strategii).
+
+Struktura odpowiedzi JSON:
 {{
     "archetype": {{
-        "id": int,
-        "name": str,
+        "id": "uuid",
+        "name": "string",
         "confidence": float
+    }},
+    "new_archetype_suggestion": {{
+        "based_on": ["archetype_name_1", "archetype_name_2"],
+        "new_name": "string",
+        "reasoning": "string"
     }},
     "objections": [
         {{
-            "id": int,
-            "type": str,
-            "text": str,
-            "hidden": bool
+            "id": "uuid",
+            "text": "string",
+            "hidden": boolean
         }}
     ],
     "strategy": {{
-        "playbook_id": int,
-        "approach": str,
-        "key_points": [str]
+        "playbook_id": "uuid",
+        "approach": "string",
+        "key_points": ["string"]
     }},
-    "questions": [str],
+    "quick_reply": "string",
+    "questions": ["string"],
     "purchase_probability": float,
-    "next_actions": [str]
+    "next_actions": ["string"]
 }}
 """
         
