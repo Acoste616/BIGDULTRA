@@ -14,7 +14,7 @@ class Config:
     # Ollama API (konfiguruj przez zmienne środowiskowe)
     OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "")
     OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    OLLAMA_MODEL = "gptoss120b"  # Model GPT OSS 120B
+    OLLAMA_MODEL = "gpt-oss:120b"  # Model GPT OSS 120B
     
     # Model Parameters
     DEFAULT_TEMPERATURE = 0.7
