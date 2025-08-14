@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra BIGDecoder 3.0 - Inteligentny Asystent Sprzedaży Tesla</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --tesla-dark: #111827;
+            --tesla-card: #1f2937;
+            --tesla-red: #ef4444;
+            --tesla-red-dark: #dc2626;
+            --tesla-red-glow: rgba(239, 68, 68, 0.3);
+            --tesla-border: #374151;
+            --tesla-text: #e5e7eb;
+            --tesla-text-muted: #9ca3af;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--tesla-dark) 0%, #0f172a 100%);
+            color: var(--tesla-text);
+            min-height: 100vh;
+        }
+
+        .tesla-card {
+            background: linear-gradient(135deg, var(--tesla-card) 0%, #2a3441 100%);
+            border: 1px solid var(--tesla-border);
+            transition: all 0.2s ease-in-out;
+            backdrop-filter: blur(10px);
+        }
+
+        .tesla-card:hover {
+            border-color: var(--tesla-red);
+            box-shadow: 0 0 20px var(--tesla-red-glow);
+            transform: translateY(-1px);
+        }
+
+        .tesla-card.selected {
+            border-color: var(--tesla-red);
+            box-shadow: 0 0 25px var(--tesla-red-glow);
+            background: linear-gradient(135deg, #2c3a4b 0%, #3a4453 100%);
+        }
+
+        .btn-tesla {
+            background: linear-gradient(135deg, var(--tesla-red) 0%, var(--tesla-red-dark) 100%);
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+            font-weight: 600;
+        }
+
+        .btn-tesla:hover {
+            background: linear-gradient(135deg, var(--tesla-red-dark) 0%, #b91c1c 100%);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+        }
+
+        .tab-btn {
+            transition: all 0.2s ease-in-out;
+            position: relative;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: var(--tesla-red);
+            color: var(--tesla-red);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .tab-btn:hover {
+            background: rgba(239, 68, 68, 0.05);
+            color: var(--tesla-red);
+        }
+
+        .confidence-meter {
+            background: linear-gradient(90deg, #374151 0%, #4b5563 100%);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            background: linear-gradient(90deg, var(--tesla-red) 0%, #f87171 100%);
+            height: 100%;
+            transition: width 0.5s ease-in-out;
+            position: relative;
+        }
+
+        .confidence-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .response-timer {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .archetype-evolution {
+            background: linear-gradient(135deg, #1e293b 0%, #2a3441 100%);
+            border-left: 4px solid var(--tesla-red);
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, var(--tesla-card) 0%, #2a3441 100%);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .purchase-metric { border-left: 4px solid #10b981; }
+        .churn-metric { border-left: 4px solid #f59e0b; }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--tesla-border);
+            border-top: 2px solid var(--tesla-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .quick-action-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .quick-action-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--tesla-red);
+            transform: translateY(-1px);
+        }
+
+        .response-section {
+            background: linear-gradient(135deg, #0f766e 0%, #059669 100%);
+            border-left: 4px solid #10b981;
+        }
+
+        .question-section {
+            background: linear-gradient(135deg, #7c2d12 0%, #ea580c 100%);
+            border-left: 4px solid #f97316;
+        }
+
+        .websocket-status.connected { color: #10b981; }
+        .websocket-status.connecting { color: #f59e0b; }
+        .websocket-status.disconnected { color: #ef4444; }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--tesla-dark); }
+        ::-webkit-scrollbar-thumb { 
+            background: var(--tesla-border); 
+            border-radius: 3px; 
+        }
+        ::-webkit-scrollbar-thumb:hover { background: var(--tesla-red); }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--tesla-card) 0%, #2a3441 100%);
+            border: 1px solid var(--tesla-border);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tesla Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-gradient-to-br from-gray-900 to-black flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="relative">
+                <svg class="w-24 h-24 text-red-500 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-2xl font-bold text-white mt-4">Ultra BIGDecoder 3.0</h2>
+            <p class="text-gray-400 mt-2">Inicjalizacja systemu AI...</p>
+            <div class="mt-4 text-sm text-gray-500" id="loadingStatus">Łączenie z backend...</div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden min-h-screen">
+        <!-- Header -->
+        <header class="tesla-card border-b-2 border-red-500/20 sticky top-0 z-40 backdrop-blur-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    <!-- Logo & Title -->
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <svg class="w-12 h-12 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                            </svg>
+                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-ping"></div>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-white">
+                                Ultra BIGDecoder <span class="text-red-400">3.0</span>
+                            </h1>
+                            <p class="text-sm text-gray-400">Inteligentny Asystent Sprzedaży Tesla</p>
+                        </div>
+                    </div>
+
+                    <!-- Connection Status -->
+                    <div class="flex items-center space-x-6">
+                        <div class="hidden sm:flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse" id="connectionDot"></div>
+                            <span class="text-sm text-gray-300" id="connectionStatus">Backend: Połączony</span>
+                        </div>
+                        
+                        <div class="hidden md:flex items-center space-x-4">
+                            <div class="text-right">
+                                <div class="text-sm font-semibold text-green-400" id="purchaseLikelihood">--</div>
+                                <div class="text-xs text-gray-400">Purchase</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold text-yellow-400" id="churnRisk">--</div>
+                                <div class="text-xs text-gray-400">Churn Risk</div>
+                            </div>
+                        </div>
+
+                        <button class="btn-secondary p-2 rounded-lg" id="settingsBtn">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                
+                <!-- Left Panel: Input & Analysis -->
+                <div class="space-y-6">
+                    <!-- Input Section -->
+                    <div class="tesla-card rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-bold text-white flex items-center">
+                                <svg class="w-6 h-6 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                </svg>
+                                Obserwacje o Kliencie
+                            </h2>
+                            <div class="flex space-x-2">
+                                <button class="btn-secondary px-3 py-1 rounded-lg text-sm" id="newSessionBtn">
+                                    + Nowa Sesja
+                                </button>
+                                <button class="btn-secondary px-3 py-1 rounded-lg text-sm" id="clearBtn">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quick Action Buttons -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                            <button class="quick-action-btn px-3 py-2 rounded-lg text-sm font-medium" data-text="klient sceptyczny">
+                                😐 Sceptyczny
+                            </button>
+                            <button class="quick-action-btn px-3 py-2 rounded-lg text-sm font-medium" data-text="zainteresowany produktem">
+                                😊 Zainteresowany
+                            </button>
+                            <button class="quick-action-btn px-3 py-2 rounded-lg text-sm font-medium" data-text="pyta o cenę">
+                                💰 Cena
+                            </button>
+                            <button class="quick-action-btn px-3 py-2 rounded-lg text-sm font-medium" data-text="ma rodzinę, dzieci">
+                                👨‍👩‍👧‍👦 Rodzina
+                            </button>
+                        </div>
+
+                        <!-- Main Input -->
+                        <div class="relative">
+                            <textarea 
+                                id="observationInput" 
+                                placeholder="Wpisz obserwacje o kliencie... np. 'klient sceptyczny, sąsiad ma tesle i poleca'"
+                                rows="4" 
+                                class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                                maxlength="500"
+                            ></textarea>
+                            <div class="absolute bottom-3 right-3 text-xs text-gray-500">
+                                <span id="charCount">0</span>/500
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center justify-between mt-4">
+                            <div class="flex items-center space-x-2">
+                                <button class="btn-secondary p-2 rounded-lg" id="voiceBtn" title="Nagrywanie głosowe">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                                    </svg>
+                                </button>
+                                <div class="websocket-status text-sm" id="wsStatus">
+                                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    Real-time: Aktywny
+                                </div>
+                            </div>
+                            
+                            <button class="btn-tesla px-8 py-3 rounded-lg text-white font-bold flex items-center" id="analyzeBtn">
+                                <span>Analizuj</span>
+                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </button>
+                            <!-- Wskaźnik analizy ciągłej -->
+                            <div id="analysisIndicator" class="hidden mt-3 text-center text-sm text-blue-400 animate-pulse">
+                                <span>🔍</span> Analizuję w czasie rzeczywistym...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instant Response Panel -->
+                    <div id="responsePanel" class="tesla-card rounded-xl p-6 hidden fade-in">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-white">⚡ Natychmiastowa Odpowiedź</h3>
+                            <div class="response-timer text-sm text-gray-400" id="responseTimer">1.2s</div>
+                        </div>
+
+                        <!-- Client Response -->
+                        <div class="response-section rounded-lg p-4 mb-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-white">💬 Powiedz Klientowi</h4>
+                                <button class="btn-secondary px-3 py-1 rounded text-xs" id="useResponseBtn">
+                                    ✅ Użyte
+                                </button>
+                            </div>
+                            <p class="text-white leading-relaxed" id="clientResponseText">
+                                <!-- Generated response here -->
+                            </p>
+                        </div>
+
+                        <!-- Follow-up Question (conditional) -->
+                        <div id="questionSection" class="question-section rounded-lg p-4 mb-4 hidden">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-white">❓ Zadaj Pytanie</h4>
+                                <div class="flex space-x-2">
+                                    <span class="text-xs text-orange-200" id="questionReason">Doprecyzowanie</span>
+                                    <button class="btn-tesla px-3 py-1 rounded text-xs" id="answerQuestionBtn">
+                                        💬 Odpowiedz
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-white italic" id="followUpQuestionText">
+                                <!-- Generated question here -->
+                            </p>
+                        </div>
+
+                        <!-- Archetype Evolution -->
+                        <div class="archetype-evolution rounded-lg p-4">
+                            <h4 class="font-semibold text-white mb-3">🎭 Ewolucja Archetypu</h4>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-gray-300 text-sm" id="previousArchetype">Unknown</span>
+                                    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                    </svg>
+                                    <span class="text-white font-semibold" id="currentArchetype">Security Seeker</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="confidence-meter w-24 mb-1">
+                                        <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                                    </div>
+                                    <div class="text-xs text-gray-400">
+                                        <span id="confidenceText">0.0</span> confidence
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session History -->
+                    <div class="tesla-card rounded-xl p-6">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center">
+                            <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Historia Sesji
+                        </h3>
+                        <div id="sessionHistory" class="space-y-3 max-h-64 overflow-y-auto">
+                            <div class="text-gray-400 text-sm text-center py-8">
+                                Historia obserwacji pojawi się tutaj...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Strategy Dashboard -->
+                <div class="space-y-6">
+                    <!-- Live Metrics -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="metric-card tesla-card purchase-metric rounded-xl p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-green-400">Purchase Likelihood</h4>
+                                <span class="text-xs text-green-300" id="purchaseTrend">—</span>
+                            </div>
+                            <div class="text-2xl font-bold text-white">
+                                <span id="purchaseValue">0</span><span class="text-lg text-gray-400">%</span>
+                            </div>
+                            <div class="mt-2 h-2 bg-gray-700 rounded-full">
+                                <div class="h-full bg-green-500 rounded-full transition-all duration-500" id="purchaseBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card tesla-card churn-metric rounded-xl p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-yellow-400">Churn Risk</h4>
+                                <span class="text-xs text-yellow-300" id="churnTrend">—</span>
+                            </div>
+                            <div class="text-2xl font-bold text-white">
+                                <span id="churnValue">0</span><span class="text-lg text-gray-400">%</span>
+                            </div>
+                            <div class="mt-2 h-2 bg-gray-700 rounded-full">
+                                <div class="h-full bg-yellow-500 rounded-full transition-all duration-500" id="churnBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Strategy Dashboard -->
+                    <div class="tesla-card rounded-xl">
+                        <!-- Dashboard Header -->
+                        <div class="p-6 border-b border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-bold text-white">🎯 Panel Strategiczny</h3>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-sm text-gray-400">
+                                        Confidence: <span id="dashboardConfidence" class="text-red-400 font-semibold">0.0</span>
+                                    </div>
+                                    <div class="text-sm" id="strategyStatus">
+                                        <span class="text-yellow-400">⏳ Zbieranie danych...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Strategy Tabs -->
+                        <div class="border-b border-gray-700">
+                            <nav class="flex space-x-8 px-6" id="strategyTabs">
+                                <button class="tab-btn py-4 px-2 font-medium text-sm active" data-tab="main-strategy">
+                                    🎯 Główna Strategia
+                                </button>
+                                <button class="tab-btn py-4 px-2 font-medium text-sm" data-tab="communication">
+                                    💬 Komunikacja
+                                </button>
+                                <button class="tab-btn py-4 px-2 font-medium text-sm" data-tab="analytics">
+                                    📊 Wskaźniki
+                                </button>
+                                <button class="tab-btn py-4 px-2 font-medium text-sm" data-tab="sparring">
+                                    🤖 Sparring
+                                </button>
+                            </nav>
+                        </div>
+
+                        <!-- Tab Content -->
+                        <div class="p-6">
+                            <!-- Main Strategy Tab -->
+                            <div id="main-strategy" class="tab-content">
+                                <div class="space-y-6">
+                                    <div class="text-center py-12">
+                                        <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"></path>
+                                            </svg>
+                                        </div>
+                                        <h4 class="text-lg text-gray-400 mb-2">Strategia w Przygotowaniu</h4>
+                                        <p class="text-gray-500">Wprowadź obserwacje o kliencie, aby aktywować inteligentną strategię sprzedaży</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Communication Tab -->
+                            <div id="communication" class="tab-content hidden">
+                                <div class="text-center py-12">
+                                    <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                        </svg>
+                                    </div>
+                                    <h4 class="text-lg text-gray-400 mb-2">Narzędzia Komunikacji</h4>
+                                    <p class="text-gray-500">Słownik mocy, frazy i style komunikacji będą dostępne po analizie klienta</p>
+                                </div>
+                            </div>
+
+                            <!-- Analytics Tab -->
+                            <div id="analytics" class="tab-content hidden">
+                                <div class="space-y-6">
+                                    <!-- CTA Readiness -->
+                                    <div class="tesla-card bg-gray-800/50 rounded-lg p-4">
+                                        <h4 class="font-semibold text-blue-400 mb-3">🎯 CTA Readiness</h4>
+                                        <div class="text-center py-6">
+                                            <div class="text-3xl mb-2" id="ctaEmoji">⏳</div>
+                                            <div class="text-white font-semibold" id="ctaRecommendation">Analiza w toku...</div>
+                                            <div class="text-sm text-gray-400 mt-1" id="ctaDescription">Oczekiwanie na dane klienta</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Additional Metrics -->
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="tesla-card bg-gray-800/50 rounded-lg p-4">
+                                            <h5 class="font-semibold text-purple-400 mb-2">🏎️ Fun-Drive</h5>
+                                            <div class="text-2xl font-bold text-white">
+                                                <span id="funDriveValue">0</span><span class="text-lg text-gray-400">/10</span>
+                                            </div>
+                                        </div>
+                                        <div class="tesla-card bg-gray-800/50 rounded-lg p-4">
+                                            <h5 class="font-semibold text-teal-400 mb-2">🌙 OVN Potential</h5>
+                                            <div class="text-2xl font-bold text-white" id="ovnValue">--</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sparring Tab - PEŁNA FUNKCJONALNOŚĆ -->
+                            <div id="sparring" class="tab-content hidden">
+                                <div id="sparringContent" class="space-y-4">
+                                    <!-- Placeholder gdy confidence < 0.8 -->
+                                    <div id="sparringPlaceholder" class="text-center py-12">
+                                        <div class="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <h4 class="text-lg text-gray-400 mb-2">AI Sparring Partner</h4>
+                                        <p class="text-gray-500">Dostępne po osiągnięciu pewności ≥ 80%</p>
+                                    </div>
+                                    
+                                    <!-- Aktywny panel gdy confidence >= 0.8 -->
+                                    <div id="sparringActive" class="hidden space-y-4">
+                                        <!-- Tryby pracy -->
+                                        <div class="bg-gray-800/50 rounded-lg p-4">
+                                            <h4 class="text-white font-bold mb-3">🎮 Wybierz tryb pracy:</h4>
+                                            <div class="grid grid-cols-3 gap-2">
+                                                <button class="sparring-mode-btn bg-blue-900/50 hover:bg-blue-900/70 rounded-lg p-3 text-center" data-mode="client">
+                                                    <div class="text-blue-400 font-bold mb-1">🧑‍💼 KLIENT</div>
+                                                    <div class="text-xs text-gray-400">AI jako klient</div>
+                                                </button>
+                                                <button class="sparring-mode-btn bg-green-900/50 hover:bg-green-900/70 rounded-lg p-3 text-center" data-mode="coach">
+                                                    <div class="text-green-400 font-bold mb-1">🎯 COACH</div>
+                                                    <div class="text-xs text-gray-400">AI jako trener</div>
+                                                </button>
+                                                <button class="sparring-mode-btn bg-purple-900/50 hover:bg-purple-900/70 rounded-lg p-3 text-center" data-mode="hybrid">
+                                                    <div class="text-purple-400 font-bold mb-1">🔄 HYBRID</div>
+                                                    <div class="text-xs text-gray-400">Oba tryby</div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Symulator klienta -->
+                                        <div id="clientSimulator" class="bg-gray-800/50 rounded-lg p-4">
+                                            <h4 class="text-white font-bold mb-3">💬 Symulator Klienta</h4>
+                                            <div class="space-y-3">
+                                                <div class="bg-gray-900 rounded p-3">
+                                                    <div class="text-sm text-gray-400 mb-2">Ty (Sprzedawca):</div>
+                                                    <input type="text" id="sellerInput" placeholder="Zadaj pytanie klientowi..." 
+                                                           class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400">
+                                                </div>
+                                                <div id="clientResponse" class="bg-blue-900/20 rounded p-3 hidden">
+                                                    <div class="text-sm text-blue-400 mb-2">AI jako Klient:</div>
+                                                    <div class="text-white" id="clientResponseText"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Live Strategy Updates -->
+                                        <div id="liveUpdates" class="bg-gray-800/50 rounded-lg p-4">
+                                            <h4 class="text-white font-bold mb-3">⚡ Live Strategy Updates</h4>
+                                            <div id="updatesList" class="space-y-2 max-h-64 overflow-y-auto">
+                                                <!-- Dynamiczne aktualizacje będą tu dodawane -->
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Inteligentne sugestie -->
+                                        <div id="aiSuggestions" class="bg-gray-800/50 rounded-lg p-4">
+                                            <h4 class="text-white font-bold mb-3">💡 Inteligentne Sugestie AI</h4>
+                                            <div id="suggestionsList" class="space-y-2">
+                                                <!-- Sugestie będą tu dodawane dynamicznie -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Configuration
+        const CONFIG = {
+            API_BASE_URL: 'http://localhost:8000',
+            WS_URL: 'ws://localhost:8000/ws',
+            CONFIDENCE_THRESHOLD: 0.8,
+            AUTO_ANALYZE: true,
+            DEBOUNCE_MS: 600
+        };
+
+        // Global state
+        let currentSession = null;
+        let websocket = null;
+        let analysisHistory = [];
+        let currentArchetype = null;
+        let continuousTimer = null;
+        let continuousController = null;
+
+        // DOM Elements
+        const elements = {
+            loadingScreen: document.getElementById('loadingScreen'),
+            mainApp: document.getElementById('mainApp'),
+            observationInput: document.getElementById('observationInput'),
+            analyzeBtn: document.getElementById('analyzeBtn'),
+            responsePanel: document.getElementById('responsePanel'),
+            clientResponseText: document.getElementById('clientResponseText'),
+            followUpQuestionText: document.getElementById('followUpQuestionText'),
+            questionSection: document.getElementById('questionSection'),
+            currentArchetype: document.getElementById('currentArchetype'),
+            confidenceFill: document.getElementById('confidenceFill'),
+            confidenceText: document.getElementById('confidenceText'),
+            purchaseValue: document.getElementById('purchaseValue'),
+            churnValue: document.getElementById('churnValue'),
+            charCount: document.getElementById('charCount'),
+            sessionHistory: document.getElementById('sessionHistory')
+        };
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', async function() {
+            showLoading('Inicjalizacja systemu...');
+            
+            try {
+                await initializeApp();
+                await connectWebSocket();
+                showApp();
+            } catch (error) {
+                console.error('Initialization failed:', error);
+                showLoading('Błąd inicjalizacji. Sprawdź backend...');
+                setTimeout(() => location.reload(), 3000);
+            }
+        });
+
+        async function initializeApp() {
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Initialize new session
+            await createNewSession();
+            
+            // Check backend health
+            const health = await checkBackendHealth();
+            if (!health.ok) {
+                throw new Error('Backend not available');
+            }
+        }
+
+        function setupEventListeners() {
+                    // Input handling - CIĄGŁA ANALIZA PO KAŻDYM WPISIE
+        let lastAnalyzedText = '';
+        elements.observationInput.addEventListener('input', function() {
+            const length = this.value.length;
+            elements.charCount.textContent = length;
+            
+            // Analizuj po każdej zmianie (przecinek, nowe zdanie, etc.)
+            const currentText = this.value.trim();
+            if (currentText !== lastAnalyzedText && currentText.length > 2) {
+                // Wykryj czy to nowa informacja (po przecinku, kropce, lub po 3+ nowych znakach)
+                const textDiff = currentText.replace(lastAnalyzedText, '').trim();
+                if (textDiff.length > 2 || currentText.includes(',') || currentText.includes('.')) {
+                    lastAnalyzedText = currentText;
+                    if (continuousTimer) clearTimeout(continuousTimer);
+                    continuousTimer = setTimeout(() => {
+                        performContinuousAnalysis();
+                    }, CONFIG.DEBOUNCE_MS);
+                }
+            }
+        });
+
+            // Enter (bez Shift) wysyła szybką analizę czatową
+            elements.observationInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    performContinuousAnalysis();
+                }
+            });
+
+            // Na utracie fokusu też wykonaj lekką analizę
+            elements.observationInput.addEventListener('blur', function() {
+                if (this.value.trim().length > 0) {
+                    performContinuousAnalysis();
+                }
+            });
+
+            // Analyze button
+            elements.analyzeBtn.addEventListener('click', performAnalysis);
+
+            // Quick action buttons
+            document.querySelectorAll('.quick-action-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const text = this.dataset.text;
+                    elements.observationInput.value += (elements.observationInput.value ? ', ' : '') + text;
+                    elements.charCount.textContent = elements.observationInput.value.length;
+                    performAnalysis();
+                });
+            });
+
+            // Answer question button
+            const ansBtn = document.getElementById('answerQuestionBtn');
+            if (ansBtn) {
+                ansBtn.addEventListener('click', () => {
+                    // otwórz modal tylko jeśli jest pytanie
+                    const qText = elements.followUpQuestionText?.textContent?.trim();
+                    if (qText) {
+                        openQuestionModal(qText, false, '');
+                    }
+                });
+            }
+
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                });
+            });
+
+            // New session
+            document.getElementById('newSessionBtn').addEventListener('click', createNewSession);
+            
+            // Clear input
+            document.getElementById('clearBtn').addEventListener('click', () => {
+                elements.observationInput.value = '';
+                elements.charCount.textContent = '0';
+                elements.responsePanel.classList.add('hidden');
+            });
+        }
+
+            // CIĄGŁA ANALIZA - po każdym wpisie
+    async function performContinuousAnalysis() {
+        const observation = elements.observationInput.value.trim();
+        if (!observation) return;
+
+        // Pokaż indicator analizy (subtelny)
+        showContinuousAnalysisIndicator();
+
+        try {
+            if (continuousController) {
+                try { continuousController.abort(); } catch (e) {}
+            }
+            continuousController = new AbortController();
+            const response = await fetch(`${CONFIG.API_BASE_URL}/analyze`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_id: currentSession?.session_id,
+                    input_text: observation,
+                    mode: 'continuous' // Tryb ciągłej analizy
+                }),
+                signal: continuousController.signal
+            });
+
+            if (!response.ok) throw new Error('Analysis failed');
+
+            const result = await response.json();
+            // W trybie ciągłym tylko szybka odpowiedź + pytania
+            updateRealTimeResponse(result);
+            const conf = result.confidence_score || 0;
+            if (conf >= CONFIG.CONFIDENCE_THRESHOLD) {
+                elements.analyzeBtn.classList.add('animate-pulse');
+                elements.analyzeBtn.title = 'Model ma wystarczającą pewność — kliknij Analizuj';
+            } else {
+                elements.analyzeBtn.classList.remove('animate-pulse');
+                elements.analyzeBtn.title = '';
+            }
+            
+            hideContinuousAnalysisIndicator();
+
+        } catch (error) {
+            if (!(error && error.name === 'AbortError')) {
+                console.error('Continuous analysis error:', error);
+            }
+            hideContinuousAnalysisIndicator();
+        }
+    }
+
+    // Standardowa analiza (po kliknięciu przycisku)
+    async function performAnalysis() {
+        const observation = elements.observationInput.value.trim();
+        if (!observation) return;
+
+        showAnalysisLoading();
+
+        try {
+            const response = await fetch(`${CONFIG.API_BASE_URL}/analyze`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_id: currentSession?.session_id,
+                    input_text: observation,
+                    mode: 'analyzer'
+                })
+            });
+
+            if (!response.ok) throw new Error('Analysis failed');
+
+            const result = await response.json();
+            displayAnalysisResult(result);
+            addToHistory(observation, result);
+            hideAnalysisLoading();
+
+        } catch (error) {
+            console.error('Analysis error:', error);
+            showError('Błąd analizy. Spróbuj ponownie.');
+            hideAnalysisLoading();
+        }
+    }
+
+        // ULTRA 3.0: Aktualizacja odpowiedzi z separacją mechanizmów
+        function updateRealTimeResponse(result) {
+            // Zawsze pokaż panel odpowiedzi
+            elements.responsePanel.classList.remove('hidden');
+            elements.responsePanel.classList.add('fade-in');
+
+            console.log('🚀 ULTRA 3.0: Updating UI with result:', result);
+
+            // ULTRA 3.0: Rozdziel odpowiedzi
+            const clientResponse = result.client_response || '';
+            const coachingReply = result.quick_reply || '';
+            const priorityQuestions = result.priority_questions || result.deep_questions || [];
+            const objections = result.objections || [];
+            const confidence = result.confidence_score || 0;
+
+            // Aktualizuj główną odpowiedź - SEPARACJA MECHANIZMÓW
+            let responseHTML = `<div class="text-white leading-relaxed">`;
+            
+            // ULTRA 3.0: Sekcja 1 - ODPOWIEDŹ DO KLIENTA
+            if (clientResponse) {
+                responseHTML += `<div class="mb-4 p-4 bg-green-900/40 rounded-lg border-l-4 border-green-400">`;
+                responseHTML += `<div class="font-semibold text-green-300 mb-2">💬 POWIEDZ KLIENTOWI:</div>`;
+                responseHTML += `<div class="text-white text-lg">${clientResponse}</div>`;
+                responseHTML += `</div>`;
+            }
+            
+            // ULTRA 3.0: Sekcja 2 - COACHING DLA SPRZEDAWCY
+            if (coachingReply) {
+                responseHTML += `<div class="mb-3 p-3 bg-blue-900/40 rounded-lg border-l-4 border-blue-400">`;
+                responseHTML += `<div class="font-semibold text-blue-300 mb-2">🤖 COACHING - Jak prowadzić:</div>`;
+                responseHTML += `<div class="text-white">${coachingReply}</div>`;
+                responseHTML += `</div>`;
+            }
+            
+            // Jeśli wykryto obiekcję - dodatkowe zbicie
+            if (objections.length > 0) {
+                const obj0 = objections[0] || {};
+                const rebuttalText = obj0.rebuttal || obj0.text || obj0.type || 'Brak szczegółów zbicia';
+                responseHTML += `<div class="mb-3 p-3 bg-red-900/30 rounded-lg border-l-4 border-red-500">`;
+                responseHTML += `<div class="font-semibold text-red-400 mb-2">🎯 Dodatkowe zbicie obiekcji:</div>`;
+                responseHTML += `<div class="text-white">${rebuttalText}</div>`;
+                responseHTML += `</div>`;
+            }
+
+            // Jeśli są dane eksperckie (dopłaty, TCO, etc.)
+            if (result.enriched_data) {
+                if (result.enriched_data.subsidies && result.enriched_data.subsidies.length > 0) {
+                    responseHTML += `<div class="mt-3 p-2 bg-green-900/30 rounded">`;
+                    responseHTML += `<span class="text-green-400 font-semibold">💰 Dopłaty:</span> `;
+                    responseHTML += `Mój Elektryk do 27,000 PLN!`;
+                    responseHTML += `</div>`;
+                }
+                
+                if (result.enriched_data.tco_comparison && result.enriched_data.tco_comparison.savings) {
+                    responseHTML += `<div class="mt-2 p-2 bg-blue-900/30 rounded">`;
+                    responseHTML += `<span class="text-blue-400 font-semibold">📊 TCO:</span> `;
+                    responseHTML += `Oszczędności ${result.enriched_data.tco_comparison.savings.toLocaleString()} PLN/5 lat`;
+                    responseHTML += `</div>`;
+                }
+            }
+
+            responseHTML += `</div>`;
+            elements.clientResponseText.innerHTML = responseHTML;
+
+            // ULTRA 3.0: Pytania priorytetowe z critical flag
+            if (priorityQuestions && priorityQuestions.length > 0) {
+                elements.questionSection.classList.remove('hidden');
+                
+                // Pokaż wszystkie pytania priorytetowe (max 5)
+                let questionsHTML = `<div class="space-y-2">`;
+                
+                priorityQuestions.forEach((question, index) => {
+                    const questionText = typeof question === 'string' ? question : question.text;
+                    const isCritical = typeof question === 'object' ? question.critical : false;
+                    const reason = typeof question === 'object' ? question.reason : '';
+                    
+                    // Ikona i styl w zależności od critical
+                    const icon = isCritical ? '⭐' : '❓';
+                    const bgColor = isCritical ? 'bg-red-900/40 border-red-400' : 'bg-blue-900/30 border-blue-400';
+                    const textColor = isCritical ? 'text-red-300' : 'text-blue-300';
+                    
+                    questionsHTML += `<div class="p-3 ${bgColor} rounded-lg border-l-4 cursor-pointer hover:bg-opacity-60 transition-all" 
+                                            onclick="openQuestionModal('${questionText}', ${isCritical}, '${reason}')">`;
+                    questionsHTML += `<div class="font-semibold ${textColor} mb-1">${icon} ${isCritical ? 'KLUCZOWE:' : 'Pytanie:'}</div>`;
+                    questionsHTML += `<div class="text-white">${questionText}</div>`;
+                    if (reason && isCritical) {
+                        questionsHTML += `<div class="text-xs text-gray-400 mt-1">Powód: ${reason}</div>`;
+                    }
+                    questionsHTML += `</div>`;
+                });
+                
+                questionsHTML += `</div>`;
+                
+                // Dodaj instrukcję
+                questionsHTML += `<div class="mt-3 p-2 bg-gray-800 rounded text-xs text-gray-400">`;
+                questionsHTML += `💡 Kliknij pytanie aby odpowiedzieć i ulepszyć analizę`;
+                questionsHTML += `</div>`;
+                
+                // Ustaw pierwsze pytanie również w polu followUpQuestionText (widoczne od razu)
+                const firstQ = typeof priorityQuestions[0] === 'string' ? priorityQuestions[0] : (priorityQuestions[0]?.text || '');
+                elements.followUpQuestionText.textContent = firstQ;
+                
+                // Dodatkowo pokaż listę pytań pod spodem
+                elements.followUpQuestionText.insertAdjacentHTML('afterend', questionsHTML);
+                
+                document.getElementById('questionReason').textContent = 
+                    confidence < 0.5 ? 'Potrzebuję więcej informacji' :
+                    confidence < 0.8 ? 'Doprecyzowanie' :
+                    'Potwierdzenie';
+            }
+
+            // Aktualizuj archetyp z ewolucją
+            if (result.archetypes_top3 && result.archetypes_top3.length > 0) {
+                const archetype = result.archetypes_top3[0];
+                const previousArchetype = elements.currentArchetype.textContent;
+                
+                if (previousArchetype !== archetype.name && previousArchetype !== 'Unknown') {
+                    document.getElementById('previousArchetype').textContent = previousArchetype;
+                }
+                
+                elements.currentArchetype.textContent = archetype.name;
+                
+                const conf = parseFloat(archetype.confidence) || 0;
+                elements.confidenceFill.style.width = `${conf * 100}%`;
+                elements.confidenceText.textContent = conf.toFixed(2);
+                
+                // WYŚWIETL EWOLUCJĘ ARCHETYPU
+                if (result.archetype_evolution && result.archetype_evolution.length > 1) {
+                    const evolutionDiv = document.getElementById('archetypeEvolution');
+                    if (evolutionDiv) {
+                        let evolutionHTML = '<div class="text-xs text-gray-400 mt-2">Ewolucja: ';
+                        result.archetype_evolution.forEach((evo, idx) => {
+                            if (idx > 0) evolutionHTML += ' → ';
+                            evolutionHTML += `<span class="text-${idx === result.archetype_evolution.length - 1 ? 'yellow' : 'gray'}-400">${evo.name}</span>`;
+                        });
+                        evolutionHTML += '</div>';
+                        evolutionDiv.innerHTML = evolutionHTML;
+                    }
+                }
+                
+                // Zmień kolor w zależności od pewności
+                if (conf >= 0.8) {
+                    elements.confidenceFill.style.background = 'linear-gradient(90deg, #10b981 0%, #34d399 100%)';
+                } else if (conf >= 0.5) {
+                    elements.confidenceFill.style.background = 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)';
+                } else {
+                    elements.confidenceFill.style.background = 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)';
+                }
+            }
+
+            // Response timer
+            document.getElementById('responseTimer').textContent = '0.3s';
+        }
+
+        // ULTRA 3.0: Modal do odpowiedzi na pytania
+        function openQuestionModal(questionText, isCritical, reason) {
+            console.log('🎯 ULTRA 3.0: Opening question modal:', questionText, isCritical);
+            
+            const modal = document.getElementById('questionModal');
+            const modalQuestion = document.getElementById('modalQuestionText');
+            const modalReason = document.getElementById('modalReason');
+            const modalAnswer = document.getElementById('modalAnswerText');
+            const criticalBadge = document.getElementById('criticalBadge');
+            
+            // Ustaw zawartość modalu
+            modalQuestion.textContent = questionText;
+            modalReason.textContent = reason || 'Pytanie pogłębiające';
+            modalAnswer.value = '';
+            
+            // Pokaż/ukryj badge critical
+            if (isCritical) {
+                criticalBadge.classList.remove('hidden');
+            } else {
+                criticalBadge.classList.add('hidden');
+            }
+            
+            // Zapisz dane pytania do użycia przy submit
+            modal.dataset.questionText = questionText;
+            modal.dataset.isCritical = isCritical;
+            
+            // Pokaż modal
+            modal.classList.remove('hidden');
+            modalAnswer.focus();
+        }
+        
+        function closeQuestionModal() {
+            document.getElementById('questionModal').classList.add('hidden');
+        }
+        
+        async function submitQuestionAnswer() {
+            const modal = document.getElementById('questionModal');
+            const answer = document.getElementById('modalAnswerText').value.trim();
+            
+            if (!answer) {
+                alert('Proszę wpisać odpowiedź');
+                return;
+            }
+            
+            const questionText = modal.dataset.questionText;
+            const wasCritical = modal.dataset.isCritical === 'true';
+            
+            console.log('📝 ULTRA 3.0: Submitting answer:', answer, 'for question:', questionText);
+            
+            // Zamknij modal
+            closeQuestionModal();
+            
+            // Dodaj odpowiedź do obserwacji i przeanalizuj
+            const newObservation = `ODPOWIEDŹ: ${answer}`;
+            document.getElementById('observationInput').value = newObservation;
+            
+            // Automatycznie trigger analizę
+            await performAnalysis();
+        }
+
+        // Oryginalna funkcja displayAnalysisResult (dla pełnej analizy)
+        function displayAnalysisResult(result) {
+            updateRealTimeResponse(result);
+            
+            // Update metrics
+            if (result.scores) {
+                updateMetrics(result.scores);
+                updateAdvancedMetrics(result.scores);
+            }
+
+            // ULTRA 3.0: Pokazuj następne kroki jeśli są
+            if (result.next_actions && result.next_actions.length > 0) {
+                displayNextActions(result.next_actions);
+            }
+
+            // ULTRA 3.0: Wyświetl sygnały de-eskalacji jeśli są
+            if (result.deescalation_signals && result.deescalation_signals.length > 0) {
+                displayDeescalationAlerts(result.deescalation_signals);
+            }
+
+            // Update strategy status
+            updateStrategyStatus(result);
+            
+            // ULTRA 3.0: Aktywuj AI Sparring jeśli confidence >= 0.8
+            if (result.confidence_score >= CONFIG.CONFIDENCE_THRESHOLD) {
+                activateSparringPanel(result);
+            }
+        }
+
+        function updateMetrics(scores) {
+            const purchase = Math.round(scores.purchase_likelihood || 0);
+            const churn = Math.round(scores.churn_risk || 0);
+
+            elements.purchaseValue.textContent = purchase;
+            elements.churnValue.textContent = churn;
+
+            document.getElementById('purchaseBar').style.width = `${purchase}%`;
+            document.getElementById('churnBar').style.width = `${churn}%`;
+
+            // Update header metrics
+            document.getElementById('purchaseLikelihood').textContent = `${purchase}%`;
+            document.getElementById('churnRisk').textContent = `${churn}%`;
+        }
+
+        // NOWA: Aktualizacja panelu strategii w czasie rzeczywistym z PROGAMI
+        function updateStrategyPanel(result) {
+            const confidence = result.confidence_score || result.archetypes_top3?.[0]?.confidence || 0;
+            
+            // LOGIKA PROGÓW zgodnie z BIGDECODER.md
+            // < 0.5: Panel podstawowy, strategia ukryta, 1 pytanie
+            // 0.5-0.7: Panel rozszerzony, strategia częściowa, 2 pytania
+            // >= 0.8: Pełny panel, kompletna strategia, pytania utwierdzające, AI Sparring
+            
+            const strategyTab = document.getElementById('main-strategy');
+            const questionsSection = document.getElementById('deepQuestions');
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            // PRÓG 1: Confidence < 0.5 - TRYB PODSTAWOWY
+            if (confidence < 0.5) {
+                // Ukryj większość zakładek
+                tabButtons.forEach((btn, index) => {
+                    if (index > 0) btn.classList.add('opacity-50', 'cursor-not-allowed');
+                });
+                
+                // Pokaż tylko podstawowe informacje
+                if (strategyTab) {
+                    strategyTab.innerHTML = `
+                        <div class="bg-gray-800/50 rounded-lg p-4 border-l-4 border-gray-500">
+                            <h4 class="text-gray-400 font-bold mb-3">🔍 ZBIERANIE INFORMACJI...</h4>
+                            <div class="text-gray-300">
+                                <p class="mb-3">System analizuje wypowiedź klienta. Potrzeba więcej danych do identyfikacji profilu.</p>
+                                <div class="mt-4 p-3 bg-yellow-900/30 rounded">
+                                    <div class="font-semibold text-yellow-400 mb-2">⚠️ Niski poziom pewności: ${(confidence * 100).toFixed(0)}%</div>
+                                    <p class="text-sm">Zadaj pytanie pogłębiające, aby lepiej zrozumieć potrzeby klienta.</p>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+                
+                // Pokaż tylko 1 pytanie pogłębiające
+                if (questionsSection && result.deep_questions) {
+                    questionsSection.innerHTML = `
+                        <div class="bg-blue-900/30 rounded p-3">
+                            <div class="font-semibold text-blue-400 mb-2">❓ Zadaj to pytanie:</div>
+                            <div class="text-white">${result.deep_questions[0] || 'Co jest dla Pana najważniejsze przy wyborze samochodu?'}</div>
+                        </div>`;
+                }
+            }
+            // PRÓG 2: Confidence 0.5-0.7 - TRYB ROZSZERZONY
+            else if (confidence >= 0.5 && confidence < 0.8) {
+                // Odblokuj niektóre zakładki
+                tabButtons.forEach((btn, index) => {
+                    if (index <= 2) {
+                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        btn.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                });
+                
+                // Pokaż częściową strategię
+                if (strategyTab) {
+                    let strategyHTML = `
+                        <div class="bg-yellow-900/20 rounded-lg p-4 border-l-4 border-yellow-500">
+                            <h4 class="text-yellow-400 font-bold mb-3">⚡ BUDOWANIE STRATEGII...</h4>
+                            <div class="text-white space-y-3">`;
+                    
+                    // Pokaż wstępny archetyp
+                    if (result.archetypes_top3?.[0]) {
+                        const arch = result.archetypes_top3[0];
+                        strategyHTML += `
+                            <div class="mb-4">
+                                <span class="font-semibold">Wstępna identyfikacja:</span> 
+                                <span class="text-yellow-400">${arch.name}</span> 
+                                <span class="text-gray-400">(pewność: ${(arch.confidence * 100).toFixed(0)}%)</span>
+                            </div>`;
+                    }
+                    
+                    // Pokaż częściowe dane (np. dopłaty)
+                    if (result.enriched_data?.subsidies) {
+                        strategyHTML += `
+                            <div class="bg-green-900/30 rounded p-3 mb-3">
+                                <div class="font-semibold text-green-400 mb-2">💰 Wstępne informacje o dopłatach:</div>
+                                <div class="text-sm">Program Mój Elektryk: do 27,000 PLN</div>
+                            </div>`;
+                    }
+                    
+                    strategyHTML += `
+                            </div>
+                        </div>`;
+                    
+                    strategyTab.innerHTML = strategyHTML;
+                }
+                
+                // Pokaż 2 pytania pogłębiające
+                if (questionsSection && result.deep_questions) {
+                    let questionsHTML = `
+                        <div class="bg-blue-900/30 rounded p-3">
+                            <div class="font-semibold text-blue-400 mb-2">❓ Pytania pogłębiające:</div>
+                            <ol class="list-decimal list-inside space-y-2">`;
+                    
+                    result.deep_questions.slice(0, 2).forEach(q => {
+                        questionsHTML += `<li class="text-white">${q}</li>`;
+                    });
+                    
+                    questionsHTML += `</ol></div>`;
+                    questionsSection.innerHTML = questionsHTML;
+                }
+            }
+            // PRÓG 3: Confidence >= 0.8 - TRYB PEŁNY
+            else if (confidence >= 0.8) {
+                // Odblokuj WSZYSTKIE zakładki
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                });
+                
+                // Aktywuj AI Sparring Partner
+                const sparringPlaceholder = document.getElementById('sparringPlaceholder');
+                const sparringActive = document.getElementById('sparringActive');
+                if (sparringPlaceholder && sparringActive) {
+                    sparringPlaceholder.classList.add('hidden');
+                    sparringActive.classList.remove('hidden');
+                }
+                
+                // Pokaż pytania utwierdzające
+                if (questionsSection && result.deep_questions) {
+                    let questionsHTML = `
+                        <div class="bg-green-900/30 rounded p-3">
+                            <div class="font-semibold text-green-400 mb-2">✅ Pytania utwierdzające:</div>
+                            <ol class="list-decimal list-inside space-y-2">`;
+                    
+                    result.deep_questions.forEach(q => {
+                        questionsHTML += `<li class="text-white">${q}</li>`;
+                    });
+                    
+                    questionsHTML += `</ol></div>`;
+                    questionsSection.innerHTML = questionsHTML;
+                }
+                
+                // Pokaż pełny panel strategii
+                const strategyTab = document.getElementById('main-strategy');
+                if (strategyTab) {
+                    let strategyHTML = `
+                        <div class="space-y-6">
+                            <div class="bg-green-900/20 rounded-lg p-4 border-l-4 border-green-500">
+                                <h4 class="text-green-400 font-bold mb-3">🎯 PEŁNA STRATEGIA AKTYWOWANA!</h4>
+                                <div class="text-white space-y-3">`;
+                    
+                    // Archetyp z pełnym opisem
+                    if (result.archetypes_top3?.[0]) {
+                        const arch = result.archetypes_top3[0];
+                        strategyHTML += `
+                            <div class="mb-4">
+                                <span class="font-semibold">Zidentyfikowany archetyp:</span> 
+                                <span class="text-yellow-400">${arch.name}</span> 
+                                <span class="text-gray-400">(pewność: ${(arch.confidence * 100).toFixed(0)}%)</span>
+                            </div>`;
+                    }
+                    
+                    // Playbooki
+                    if (result.enriched_data?.playbook_details) {
+                        strategyHTML += `
+                            <div class="mb-4">
+                                <div class="font-semibold mb-2">📚 Zalecany Playbook:</div>
+                                <div class="pl-4 text-gray-300">${result.enriched_data.playbook_details.name || 'Strategia standardowa'}</div>
+                            </div>`;
+                    }
+                    
+                    // Następne kroki
+                    if (result.next_actions && result.next_actions.length > 0) {
+                        strategyHTML += `
+                            <div class="mb-4">
+                                <div class="font-semibold mb-2">🎯 Następne kroki:</div>
+                                <ol class="list-decimal list-inside pl-4 space-y-2">`;
+                        result.next_actions.forEach(action => {
+                            strategyHTML += `<li class="text-gray-300">${action}</li>`;
+                        });
+                        strategyHTML += `</ol></div>`;
+                    }
+                    
+                    // Dane eksperckie - dopłaty, TCO, infrastruktura
+                    if (result.enriched_data) {
+                        strategyHTML += `<div class="grid grid-cols-2 gap-4 mt-4">`;
+                        
+                        // Dopłaty
+                        if (result.enriched_data.subsidies) {
+                            strategyHTML += `
+                                <div class="bg-green-900/30 rounded p-3">
+                                    <div class="font-semibold text-green-400 mb-2">💰 Dostępne dopłaty:</div>
+                                    <div class="text-sm">Mój Elektryk: 27,000 PLN</div>
+                                    <div class="text-sm">Dla firm: do 70,000 PLN</div>
+                                </div>`;
+                        }
+                        
+                        // TCO
+                        if (result.enriched_data.tco_comparison) {
+                            strategyHTML += `
+                                <div class="bg-blue-900/30 rounded p-3">
+                                    <div class="font-semibold text-blue-400 mb-2">📊 Analiza TCO:</div>
+                                    <div class="text-sm">Oszczędności: ${(result.enriched_data.tco_comparison.savings || 49500).toLocaleString()} PLN/5 lat</div>
+                                    <div class="text-sm">ROI: ${result.enriched_data.tco_comparison.break_even_years || '3.5'} lat</div>
+                                </div>`;
+                        }
+                        
+                        strategyHTML += `</div>`;
+                    }
+                    
+                    strategyHTML += `
+                                </div>
+                            </div>
+                        </div>`;
+                    
+                    strategyTab.innerHTML = strategyHTML;
+                }
+            }
+            
+            // Zawsze aktualizuj status
+            updateStrategyStatus(result);
+        }
+
+        // Oryginalna funkcja statusu
+        function updateStrategyStatus(result) {
+            const confidence = result.confidence_score || result.archetypes_top3?.[0]?.confidence || 0;
+            const statusEl = document.getElementById('strategyStatus');
+            const dashboardConfidence = document.getElementById('dashboardConfidence');
+
+            dashboardConfidence.textContent = confidence.toFixed(2);
+
+            if (confidence >= CONFIG.CONFIDENCE_THRESHOLD) {
+                statusEl.innerHTML = '<span class="text-green-400">✅ Strategia aktywowana</span>';
+            } else if (confidence >= 0.5) {
+                statusEl.innerHTML = '<span class="text-yellow-400">⚡ Budowanie strategii...</span>';
+            } else {
+                statusEl.innerHTML = '<span class="text-gray-400">⏳ Zbieranie danych...</span>';
+            }
+        }
+
+        function addToHistory(observation, result) {
+            const historyItem = {
+                timestamp: new Date(),
+                observation,
+                result
+            };
+
+            analysisHistory.push(historyItem);
+            
+            // Update history display
+            const historyEl = elements.sessionHistory;
+            const itemEl = document.createElement('div');
+            itemEl.className = 'bg-gray-800/50 rounded-lg p-3 slide-in';
+            
+            const timeStr = historyItem.timestamp.toLocaleTimeString('pl-PL', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            itemEl.innerHTML = `
+                <div class="flex items-start justify-between mb-2">
+                    <div class="text-sm font-medium text-white">${timeStr}</div>
+                    <div class="text-xs text-gray-400">
+                        ${result.archetypes_top3?.[0]?.name || 'Unknown'} (${(result.archetypes_top3?.[0]?.confidence || 0).toFixed(2)})
+                    </div>
+                </div>
+                <div class="text-sm text-gray-300">${observation}</div>
+                <div class="text-xs text-blue-400 mt-1">🤖 Coaching: ${(result.quick_reply || '').substring(0, 60)}...</div>
+            `;
+
+            if (historyEl.children.length === 1 && historyEl.children[0].textContent.includes('Historia obserwacji')) {
+                historyEl.innerHTML = '';
+            }
+
+            historyEl.insertBefore(itemEl, historyEl.firstChild);
+
+            // Keep only last 5 items
+            while (historyEl.children.length > 5) {
+                historyEl.removeChild(historyEl.lastChild);
+            }
+        }
+
+        async function createNewSession() {
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/sessions/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: 'default-user',
+                        metadata: {
+                            user_agent: navigator.userAgent,
+                            timestamp: new Date().toISOString()
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Session creation failed');
+
+                currentSession = await response.json();
+                console.log('New session created:', currentSession.session_id);
+
+            } catch (error) {
+                console.error('Session creation error:', error);
+                currentSession = { session_id: 'offline-' + Date.now() };
+            }
+        }
+
+        async function checkBackendHealth() {
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/health`);
+                return { ok: response.ok, data: await response.json() };
+            } catch (error) {
+                return { ok: false, error };
+            }
+        }
+
+        async function connectWebSocket() {
+            if (!currentSession) return;
+
+            try {
+                websocket = new WebSocket(`${CONFIG.WS_URL}/${currentSession.session_id || currentSession.id}`);
+                
+                websocket.onopen = () => {
+                    console.log('WebSocket connected');
+                    updateConnectionStatus('connected');
+                };
+
+                websocket.onclose = () => {
+                    console.log('WebSocket disconnected');
+                    updateConnectionStatus('disconnected');
+                    
+                    // Try to reconnect after 3 seconds
+                    setTimeout(connectWebSocket, 3000);
+                };
+
+                websocket.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    updateConnectionStatus('error');
+                };
+
+                websocket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    handleWebSocketMessage(data);
+                };
+
+            } catch (error) {
+                console.error('WebSocket connection failed:', error);
+                updateConnectionStatus('failed');
+            }
+        }
+
+        function handleWebSocketMessage(data) {
+            console.log('WebSocket message:', data);
+            
+            if (data.type === 'analysis') {
+                displayAnalysisResult(data.data);
+            }
+        }
+
+        function updateConnectionStatus(status) {
+            const statusEl = document.getElementById('connectionStatus');
+            const dotEl = document.getElementById('connectionDot');
+            const wsStatusEl = document.getElementById('wsStatus');
+
+            switch (status) {
+                case 'connected':
+                    statusEl.textContent = 'Backend: Połączony';
+                    dotEl.className = 'w-3 h-3 bg-green-500 rounded-full animate-pulse';
+                    wsStatusEl.innerHTML = '<span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>Real-time: Aktywny';
+                    break;
+                case 'disconnected':
+                case 'error':
+                case 'failed':
+                    statusEl.textContent = 'Backend: Rozłączony';
+                    dotEl.className = 'w-3 h-3 bg-red-500 rounded-full animate-pulse';
+                    wsStatusEl.innerHTML = '<span class="inline-block w-2 h-2 bg-red-500 rounded-full mr-2"></span>Real-time: Nieaktywny';
+                    break;
+            }
+        }
+
+        function switchTab(tabId) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+        function showLoading(message) {
+            document.getElementById('loadingStatus').textContent = message;
+            elements.loadingScreen.classList.remove('hidden');
+            elements.mainApp.classList.add('hidden');
+        }
+
+        function showApp() {
+            elements.loadingScreen.classList.add('hidden');
+            elements.mainApp.classList.remove('hidden');
+        }
+
+        function showAnalysisLoading() {
+            elements.analyzeBtn.innerHTML = `
+                <div class="loading-spinner"></div>
+                <span class="ml-2">Analizowanie...</span>
+            `;
+            elements.analyzeBtn.disabled = true;
+        }
+
+        function hideAnalysisLoading() {
+            elements.analyzeBtn.innerHTML = `
+                <span>Analizuj</span>
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            `;
+            elements.analyzeBtn.disabled = false;
+        }
+
+        // NOWA: Aktualizacja metryk na żywo
+        function updateMetricsLive(result) {
+            // Aktualizuj metryki płynnie
+            if (result.scores) {
+                const purchase = Math.round(result.scores.purchase_likelihood || 0);
+                const churn = Math.round(result.scores.churn_risk || 0);
+                
+                // Animowane aktualizacje
+                animateValue('purchaseLikelihood', purchase, 300);
+                animateValue('churnRisk', churn, 300);
+                
+                // Zaktualizuj kolory w zależności od wartości
+                const purchaseEl = document.getElementById('purchaseLikelihood');
+                if (purchase >= 70) {
+                    purchaseEl.className = 'text-2xl font-bold text-green-400';
+                } else if (purchase >= 40) {
+                    purchaseEl.className = 'text-2xl font-bold text-yellow-400';
+                } else {
+                    purchaseEl.className = 'text-2xl font-bold text-red-400';
+                }
+                
+                const churnEl = document.getElementById('churnRisk');
+                if (churn >= 70) {
+                    churnEl.className = 'text-2xl font-bold text-red-400';
+                } else if (churn >= 40) {
+                    churnEl.className = 'text-2xl font-bold text-yellow-400';
+                } else {
+                    churnEl.className = 'text-2xl font-bold text-green-400';
+                }
+            }
+            
+            // Aktualizuj CTA readiness
+            if (result.scores?.cta_readiness) {
+                const ctaEl = document.getElementById('ctaReadiness');
+                if (ctaEl) {
+                    let ctaText = '';
+                    switch(result.scores.cta_readiness) {
+                        case 'immediate_purchase':
+                            ctaText = '🔥 Gotowy do zakupu!';
+                            break;
+                        case 'book_test_drive':
+                            ctaText = '🚗 Umów jazdę próbną';
+                            break;
+                        case 'configuration':
+                            ctaText = '⚙️ Konfiguracja online';
+                            break;
+                        case 'more_info':
+                            ctaText = '📋 Potrzebuje informacji';
+                            break;
+                        default:
+                            ctaText = '⏳ Budowanie zaufania';
+                    }
+                    ctaEl.innerHTML = ctaText;
+                }
+            }
+        }
+
+        // Helper: Animowana zmiana wartości
+        function animateValue(id, end, duration) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            
+            const start = parseInt(el.textContent) || 0;
+            const range = end - start;
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const value = Math.round(start + range * progress);
+                el.textContent = `${value}%`;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        // Wskaźniki analizy ciągłej
+        function showContinuousAnalysisIndicator() {
+            const indicator = document.getElementById('analysisIndicator');
+            if (indicator) {
+                indicator.classList.remove('hidden');
+                indicator.innerHTML = '<span class="animate-pulse">🔍</span> Analizuję...';
+            }
+        }
+
+        function hideContinuousAnalysisIndicator() {
+            const indicator = document.getElementById('analysisIndicator');
+            if (indicator) {
+                indicator.classList.add('hidden');
+            }
+        }
+
+        function showError(message) {
+            // Simple error display - could be enhanced with toast notifications
+            console.error(message);
+            hideAnalysisLoading();
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                console.log('Copied to clipboard:', text);
+                // Could show a toast notification here
+            });
+        }
+
+        // Question Modal Functions
+        function openQuestionModal() {
+            const questionText = elements.followUpQuestionText.textContent;
+            if (!questionText) return;
+
+            // Create modal if doesn't exist
+            if (!document.getElementById('questionModal')) {
+                createQuestionModal();
+            }
+
+            document.getElementById('modalQuestion').textContent = questionText;
+            document.getElementById('questionAnswer').value = '';
+            document.getElementById('questionModal').classList.add('active');
+        }
+
+        function createQuestionModal() {
+            const modalHTML = `
+                <div id="questionModal" class="modal-overlay">
+                    <div class="modal-content">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-white">💬 Odpowiedź na Pytanie AI</h3>
+                            <button id="closeModal" class="text-gray-400 hover:text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="bg-gray-800/50 rounded-lg p-3 mb-3">
+                                <div class="text-sm text-gray-400 mb-1">AI pyta:</div>
+                                <div class="text-white" id="modalQuestion">Pytanie pojawi się tutaj...</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Twoja odpowiedź:</label>
+                            <textarea 
+                                id="questionAnswer" 
+                                rows="3" 
+                                class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                                placeholder="Wpisz odpowiedź klienta lub dodatkowe informacje..."
+                            ></textarea>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs text-gray-500">
+                                Ta informacja zostanie dodana do kontekstu analizy
+                            </div>
+                            <div class="flex space-x-2">
+                                <button id="skipQuestion" class="btn-secondary px-4 py-2 rounded-lg text-sm">
+                                    Pomiń
+                                </button>
+                                <button id="submitAnswer" class="btn-tesla px-4 py-2 rounded-lg text-sm">
+                                    Dodaj do Analizy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Setup modal event listeners
+            document.getElementById('closeModal').addEventListener('click', closeQuestionModal);
+            document.getElementById('skipQuestion').addEventListener('click', closeQuestionModal);
+            document.getElementById('submitAnswer').addEventListener('click', submitQuestionAnswer);
+            
+            // Close on overlay click
+            document.getElementById('questionModal').addEventListener('click', function(e) {
+                if (e.target === this) closeQuestionModal();
+            });
+        }
+
+        function closeQuestionModal() {
+            const modal = document.getElementById('questionModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        async function submitQuestionAnswer() {
+            const answer = document.getElementById('questionAnswer').value.trim();
+            if (!answer) return;
+
+            closeQuestionModal();
+
+            // Add answer to input and trigger new analysis
+            const currentInput = elements.observationInput.value;
+            const questionText = document.getElementById('modalQuestion').textContent;
+            const newInput = currentInput + (currentInput ? ', ' : '') + `odpowiedź na "${questionText}": ${answer}`;
+            
+            elements.observationInput.value = newInput;
+            elements.charCount.textContent = newInput.length;
+            
+            // Trigger immediate analysis
+            await performAnalysis();
+        }
+
+        function debounce(func, delay) {
+            let timeoutId;
+            return function (...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
+        // Auto-hide loading and show analysis result when done
+        setInterval(() => {
+            if (elements.analyzeBtn.disabled && elements.analyzeBtn.innerHTML.includes('Analizowanie')) {
+                // Check if we should hide loading after some time
+                hideAnalysisLoading();
+            }
+        }, 5000);
+
+        // ULTRA 3.0: Nowe funkcje dla zaawansowanych metryk
+        function updateAdvancedMetrics(scores) {
+            // Fun-Drive Score
+            const funDrive = scores.fun_drive_score || 0;
+            const funDriveEl = document.getElementById('funDriveValue');
+            if (funDriveEl) {
+                funDriveEl.textContent = funDrive.toFixed(1);
+                // Kolor w zależności od wartości (wysoki = czerwony = tylko pojeździć)
+                if (funDrive >= 7) {
+                    funDriveEl.className = 'text-2xl font-bold text-red-400';
+                } else if (funDrive >= 4) {
+                    funDriveEl.className = 'text-2xl font-bold text-yellow-400';
+                } else {
+                    funDriveEl.className = 'text-2xl font-bold text-green-400';
+                }
+            }
+
+            // OVN Potential
+            const ovn = scores.ovn_potential || 0;
+            const ovnEl = document.getElementById('ovnValue');
+            if (ovnEl) {
+                ovnEl.textContent = `${ovn}/10`;
+                // Kolor w zależności od potencjału
+                if (ovn >= 7) {
+                    ovnEl.className = 'text-2xl font-bold text-green-400';
+                } else if (ovn >= 4) {
+                    ovnEl.className = 'text-2xl font-bold text-yellow-400';
+                } else {
+                    ovnEl.className = 'text-2xl font-bold text-gray-400';
+                }
+            }
+
+            // CTA Readiness
+            const ctaReadiness = scores.cta_readiness || 'build_trust';
+            const ctaEl = document.getElementById('ctaRecommendation');
+            const ctaDescEl = document.getElementById('ctaDescription');
+            const ctaEmojiEl = document.getElementById('ctaEmoji');
+            
+            if (ctaEl && ctaDescEl && ctaEmojiEl) {
+                switch(ctaReadiness) {
+                    case 'immediate_purchase':
+                        ctaEmojiEl.textContent = '🔥';
+                        ctaEl.textContent = 'Natychmiastowy zakup!';
+                        ctaDescEl.textContent = 'Klient jest gotowy - finalizuj teraz!';
+                        ctaEl.className = 'text-white font-bold text-green-400';
+                        break;
+                    case 'configuration':
+                        ctaEmojiEl.textContent = '⚙️';
+                        ctaEl.textContent = 'Konfiguracja online';
+                        ctaDescEl.textContent = 'Zaproponuj konfigurację modelu';
+                        ctaEl.className = 'text-white font-bold text-blue-400';
+                        break;
+                    case 'book_test_drive':
+                        ctaEmojiEl.textContent = '🚗';
+                        ctaEl.textContent = 'Jazda testowa';
+                        ctaDescEl.textContent = 'Umów jazdę próbną jak najszybciej';
+                        ctaEl.className = 'text-white font-bold text-purple-400';
+                        break;
+                    case 'schedule_callback':
+                        ctaEmojiEl.textContent = '📞';
+                        ctaEl.textContent = 'Zaplanuj rozmowę';
+                        ctaDescEl.textContent = 'Umów follow-up na spokojnie';
+                        ctaEl.className = 'text-white font-bold text-yellow-400';
+                        break;
+                    case 'gather_information':
+                        ctaEmojiEl.textContent = '📋';
+                        ctaEl.textContent = 'Zbierz informacje';
+                        ctaDescEl.textContent = 'Potrzebujesz więcej danych o kliencie';
+                        ctaEl.className = 'text-white font-bold text-gray-400';
+                        break;
+                    default:
+                        ctaEmojiEl.textContent = '🤝';
+                        ctaEl.textContent = 'Buduj zaufanie';
+                        ctaDescEl.textContent = 'Skup się na relacji, nie na sprzedaży';
+                        ctaEl.className = 'text-white font-bold text-gray-400';
+                }
+            }
+        }
+
+        function displayNextActions(actions) {
+            // Znajdź lub stwórz kontener na następne kroki
+            let container = document.getElementById('nextActionsContainer');
+            if (!container) {
+                const strategyTab = document.getElementById('main-strategy');
+                if (strategyTab) {
+                    const actionsHTML = `
+                        <div id="nextActionsContainer" class="mt-6 bg-blue-900/20 rounded-lg p-4 border-l-4 border-blue-500">
+                            <h4 class="text-blue-400 font-bold mb-3">🎯 Następne kroki:</h4>
+                            <ol class="list-decimal list-inside space-y-2">
+                                ${actions.map(action => `<li class="text-white">${action}</li>`).join('')}
+                            </ol>
+                        </div>`;
+                    strategyTab.insertAdjacentHTML('beforeend', actionsHTML);
+                }
+            } else {
+                // Aktualizuj istniejący kontener
+                const ol = container.querySelector('ol');
+                if (ol) {
+                    ol.innerHTML = actions.map(action => `<li class="text-white">${action}</li>`).join('');
+                }
+            }
+        }
+
+        function displayDeescalationAlerts(signals) {
+            // Wyświetl alerty de-eskalacji
+            if (signals.length > 0) {
+                let alertContainer = document.getElementById('deescalationAlerts');
+                if (!alertContainer) {
+                    // Stwórz kontener alertów na górze response panel
+                    const responsePanel = elements.responsePanel;
+                    if (responsePanel) {
+                        const alertHTML = `
+                            <div id="deescalationAlerts" class="mb-4 bg-red-900/30 border-l-4 border-red-500 rounded-lg p-4 animate-pulse">
+                                <h4 class="text-red-400 font-bold mb-2">⚠️ UWAGA - Sygnały de-eskalacji:</h4>
+                                <ul class="space-y-1">
+                                    ${signals.map(signal => `<li class="text-red-200">${signal}</li>`).join('')}
+                                </ul>
+                            </div>`;
+                        responsePanel.insertAdjacentHTML('afterbegin', alertHTML);
+                    }
+                } else {
+                    // Aktualizuj istniejące alerty
+                    const ul = alertContainer.querySelector('ul');
+                    if (ul) {
+                        ul.innerHTML = signals.map(signal => `<li class="text-red-200">${signal}</li>`).join('');
+                    }
+                }
+            }
+        }
+
+        function activateSparringPanel(result) {
+            // Aktywuj panel AI Sparring Partner
+            const sparringPlaceholder = document.getElementById('sparringPlaceholder');
+            const sparringActive = document.getElementById('sparringActive');
+            
+            if (sparringPlaceholder && sparringActive) {
+                sparringPlaceholder.classList.add('hidden');
+                sparringActive.classList.remove('hidden');
+                
+                // Setup sparring mode buttons
+                document.querySelectorAll('.sparring-mode-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const mode = this.dataset.mode;
+                        activateSparringMode(mode, result);
+                    });
+                });
+                
+                // Setup seller input
+                const sellerInput = document.getElementById('sellerInput');
+                if (sellerInput) {
+                    sellerInput.addEventListener('keypress', async function(e) {
+                        if (e.key === 'Enter') {
+                            await simulateClientResponse(this.value, result);
+                        }
+                    });
+                }
+            }
+        }
+
+        async function activateSparringMode(mode, result) {
+            console.log(`🎮 ULTRA 3.0: Activating sparring mode: ${mode}`);
+            
+            // Podświetl wybrany tryb
+            document.querySelectorAll('.sparring-mode-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-red-500');
+            });
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('ring-2', 'ring-red-500');
+            
+            // Pokaż odpowiedni interfejs
+            const clientSimulator = document.getElementById('clientSimulator');
+            if (clientSimulator) {
+                clientSimulator.classList.remove('hidden');
+            }
+        }
+
+        async function simulateClientResponse(sellerMessage, result) {
+            if (!sellerMessage.trim()) return;
+            
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/sparring/simulate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: currentSession?.session_id,
+                        seller_message: sellerMessage,
+                        mode: 'client'  // lub coach/hybrid w zależności od wybranego trybu
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Sparring simulation failed');
+                
+                const sparringResult = await response.json();
+                
+                // Wyświetl odpowiedź klienta
+                const clientResponseDiv = document.getElementById('clientResponse');
+                const clientResponseText = document.getElementById('clientResponseText');
+                
+                if (clientResponseDiv && clientResponseText) {
+                    clientResponseText.textContent = sparringResult.client_response;
+                    clientResponseDiv.classList.remove('hidden');
+                    clientResponseDiv.classList.add('fade-in');
+                }
+                
+                // Dodaj do live updates
+                addLiveUpdate('sparring_response', sparringResult);
+                
+                // Wyczyść input
+                document.getElementById('sellerInput').value = '';
+                
+            } catch (error) {
+                console.error('Sparring error:', error);
+            }
+        }
+
+        function addLiveUpdate(type, data) {
+            const updatesList = document.getElementById('updatesList');
+            if (!updatesList) return;
+            
+            const timestamp = new Date().toLocaleTimeString('pl-PL', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            let updateHTML = '';
+            
+            switch(type) {
+                case 'sparring_response':
+                    updateHTML = `
+                        <div class="bg-gray-900 rounded p-3 slide-in">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs text-gray-400">${timestamp}</span>
+                                <span class="text-xs text-blue-400">AI jako ${data.archetype}</span>
+                            </div>
+                            <div class="text-sm text-white">"${data.client_response}"</div>
+                            ${data.suggestions ? `
+                                <div class="mt-2 text-xs text-gray-400">
+                                    💡 ${data.suggestions[0]}
+                                </div>
+                            ` : ''}
+                        </div>`;
+                    break;
+                    
+                case 'strategy_update':
+                    updateHTML = `
+                        <div class="bg-yellow-900/20 rounded p-3 slide-in">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs text-gray-400">${timestamp}</span>
+                                <span class="text-xs text-yellow-400">Zmiana strategii</span>
+                            </div>
+                            <div class="text-sm text-white">${data.impact_summary}</div>
+                        </div>`;
+                    break;
+                    
+                default:
+                    updateHTML = `
+                        <div class="bg-gray-800 rounded p-3 slide-in">
+                            <div class="text-xs text-gray-400 mb-1">${timestamp}</div>
+                            <div class="text-sm text-white">${JSON.stringify(data)}</div>
+                        </div>`;
+            }
+            
+            updatesList.insertAdjacentHTML('afterbegin', updateHTML);
+            
+            // Zachowaj tylko ostatnie 10 aktualizacji
+            while (updatesList.children.length > 10) {
+                updatesList.removeChild(updatesList.lastChild);
+            }
+        }
+
+        // Inicjalizacja Live Updates przy zmianie kontekstu
+        async function triggerLiveUpdate(trigger, contextChange) {
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/sparring/live-update`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: currentSession?.session_id,
+                        update_trigger: trigger,
+                        context_change: contextChange
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Live update failed');
+                
+                const updateResult = await response.json();
+                addLiveUpdate('strategy_update', updateResult);
+                
+                // Aktualizuj metryki jeśli są nowe
+                if (updateResult.new_metrics) {
+                    updateMetrics(updateResult.new_metrics);
+                    updateAdvancedMetrics(updateResult.new_metrics);
+                }
+                
+            } catch (error) {
+                console.error('Live update error:', error);
+            }
+        }
+    </script>
+
+    <!-- ULTRA 3.0: Modal do odpowiedzi na pytania -->
+    <div id="questionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 border border-gray-700">
+            <!-- Header -->
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-white">Odpowiedź na pytanie</h3>
+                    <div id="criticalBadge" class="hidden mt-1">
+                        <span class="inline-block px-2 py-1 bg-red-500 text-white text-xs rounded">⭐ KLUCZOWE</span>
+                    </div>
+                </div>
+                <button onclick="closeQuestionModal()" class="text-gray-400 hover:text-white text-xl">&times;</button>
+            </div>
+
+            <!-- Question -->
+            <div class="mb-4">
+                <div class="font-semibold text-blue-300 mb-2">Pytanie:</div>
+                <div id="modalQuestionText" class="text-white bg-gray-700 p-3 rounded"></div>
+                <div class="text-xs text-gray-400 mt-1">
+                    <span id="modalReason"></span>
+                </div>
+            </div>
+
+            <!-- Answer Input -->
+            <div class="mb-6">
+                <label class="block text-white font-semibold mb-2">Twoja odpowiedź:</label>
+                <textarea id="modalAnswerText" 
+                          class="w-full p-3 bg-gray-700 border border-gray-600 rounded text-white resize-none" 
+                          rows="3" 
+                          placeholder="Wpisz odpowiedź klienta..."
+                          onkeydown="if(event.key==='Enter' && event.ctrlKey) submitQuestionAnswer()"></textarea>
+                <div class="text-xs text-gray-400 mt-1">Ctrl+Enter aby wysłać</div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-3">
+                <button onclick="submitQuestionAnswer()" 
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition-colors">
+                    📝 Wyślij odpowiedź
+                </button>
+                <button onclick="closeQuestionModal()" 
+                        class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors">
+                    Anuluj
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,553 @@
+{
+  "timestamp": "2025-08-14T15:53:26.673419",
+  "total_tables": 30,
+  "total_records": 390,
+  "details": {
+    "archetypes": {
+      "count": 10,
+      "exists": true,
+      "sample": {
+        "id": "550e8400-e29b-41d4-a716-446655440001",
+        "name": "Status Achiever",
+        "description": "Postrzega Teslę jako symbol sukcesu i prestiżu. Motywowany wizerunkiem, ekskluzywnością i byciem liderem opinii.",
+        "disc_profile": "D/I",
+        "motivations": {
+          "hidden": [
+            "Potrzeba uznania",
+            "Strach przed utratą statusu",
+            "Konkurencja społeczna"
+          ],
+          "primary": [
+            "Prestiż społeczny",
+            "Demonstracja sukcesu",
+            "Ekskluzywność marki"
+          ],
+          "advanced": [
+            "executive image",
+            "business networking",
+            "corporate fleet leadership",
+            "sustainable luxury positioning",
+            "executive image",
+            "business networking",
+            "corporate fleet leadership",
+            "sustainable luxury positioning"
+          ],
+          "secondary": [
+            "Jakość premium",
+            "Komfort użytkowania",
+            "Zaawansowana technologia"
+          ],
+          "psychological": [
+            "first mover advantage",
+            "thought leadership",
+            "premium experience exclusivity",
+            "first mover advantage",
+            "thought leadership",
+            "premium experience exclusivity"
+          ]
+        },
+        "triggers": {
+          "social": [
+            "Status symbol",
+            "Wpływ na wizerunek",
+            "Pozycja społeczna",
+            "CEO testimonials",
+            "business case studies",
+            "executive events",
+            "CEO testimonials",
+            "business case studies",
+            "executive events"
+          ],
+          "advanced": [
+            "VIP delivery experiences",
+            "executive test drive programs",
+            "corporate partnership opportunities",
+            "premium service packages",
+            "VIP delivery experiences",
+            "executive test drive programs",
+            "corporate partnership opportunities",
+            "premium service packages"
+          ],
+          "rational": [
+            "Wartość marki",
+            "Jakość wykonania",
+            "Gwarancja premium"
+          ],
+          "emotional": [
+            "Luksus i prestiż",
+            "Ekskluzywność",
+            "Podziw otoczenia"
+          ]
+        },
+        "created_at": "2025-08-12T08:42:34.592912+00:00"
+      }
+    },
+    "objections": {
+      "count": 22,
+      "exists": true,
+      "sample": {
+        "id": "c0fae63c-255f-4284-8557-00536b2585a5",
+        "name": "Chinese EV brands offering better value",
+        "description": "BYD, Xiaomi, and other Chinese brands seem cheaper",
+        "category": "competitive",
+        "rebuttal_strategy": {
+          "level_1": "Acknowledge price differences",
+          "level_2": "Emphasize Supercharger network and OTA updates",
+          "level_3": "Highlight data security and long-term support",
+          "evidence": [
+            "network comparison",
+            "resale values",
+            "security certifications"
+          ],
+          "framework": "VALUE→ECOSYSTEM→SECURITY"
+        },
+        "created_at": "2025-08-13T16:10:08.485141+00:00"
+      }
+    },
+    "playbooks": {
+      "count": 18,
+      "exists": true,
+      "sample": {
+        "id": "b4950093-2159-4a22-bf36-11ee77f4b4f3",
+        "name": "Black Book: Pętla Czasowa Przestarzałości",
+        "target_archetype_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        "target_objection_id": null,
+        "description": "Zaawansowana technika perswazji tworząca dysonans poznawczy poprzez ramowanie aut konkurencji jako przestarzałych w momencie zakupu.",
+        "strategy_details": {
+          "goal": "Stworzenie dysonansu poznawczego i pozycjonowanie Tesli jako jedynego wyboru zorientowanego na przyszłość.",
+          "script": "Proszę sobie wyobrazić, że za 6 miesięcy Pana nowe BMW będzie dokładnie takie samo, podczas gdy cała flota Tesli otrzyma 3 duże aktualizacje, które poprawią jej wydajność i dodadzą nowe funkcje. Szuka Pan nowoczesnego auta, czy partnera technologicznego, który ewoluuje razem z Panem?"
+        },
+        "created_at": "2025-08-12T08:42:34.592912+00:00"
+      }
+    },
+    "products_tesla": {
+      "count": 11,
+      "exists": true,
+      "sample": {
+        "id": "md12-model-3-long-range-rwd",
+        "model_name": "Model 3",
+        "variant": "Long Range RWD",
+        "base_price_pln": 204990,
+        "range_km": null,
+        "acceleration_0_100": null,
+        "max_speed_kmh": null,
+        "battery_capacity_kwh": null,
+        "charging_power_max_kw": null,
+        "key_features": null,
+        "target_segments": null,
+        "availability_status": null
+      }
+    },
+    "products_competitors": {
+      "count": 60,
+      "exists": true,
+      "sample": {
+        "id": "md14-hyundai-ioniq-5",
+        "brand": "Hyundai",
+        "model_name": "IONIQ 5",
+        "variant": null,
+        "base_price_pln": 214900,
+        "range_km": null,
+        "key_advantages": [
+          "Szybkie ładowanie",
+          "design"
+        ],
+        "key_disadvantages": [
+          "Wyższa cena",
+          "mniejsza dostępność"
+        ],
+        "market_position": "mainstream",
+        "competitive_analysis": {
+          "source": "MD14 TESLA_COMPETITIVE_INTELLIGENCE_POLAND",
+          "section": "modely",
+          "drivetrain": "EV"
+        }
+      }
+    },
+    "market_data_poland": {
+      "count": 16,
+      "exists": true,
+      "sample": {
+        "id": "md_pl_sub_01",
+        "data_category": "Government Incentives",
+        "metric_name": "Mój Elektryk Subsidy",
+        "metric_value": 27000,
+        "time_period": "2024-2025",
+        "source": "NFOSiGW",
+        "regional_breakdown": null,
+        "trend_analysis": {
+          "summary": "Subsidy program is a major driver for EV adoption, especially for Pragmatic Analysts."
+        }
+      }
+    },
+    "promotions": {
+      "count": 11,
+      "exists": true,
+      "sample": {
+        "id": "promo_q2_25",
+        "name": "End of Q2 Price Adjustment",
+        "promotion_type": "Price Reduction",
+        "discount_amount_pln": 5000,
+        "start_date": "2025-06-15",
+        "end_date": "2025-06-30",
+        "eligibility_criteria": [
+          "Applies to in-stock Model Y Long Range vehicles."
+        ],
+        "terms_conditions": {
+          "details": "Cannot be combined with other offers."
+        },
+        "priority_score": 8,
+        "target_segments": [
+          "Pragmatic Analyst",
+          "Cautious Adopter"
+        ]
+      }
+    },
+    "seasonal_patterns": {
+      "count": 4,
+      "exists": true,
+      "sample": {
+        "id": "sp_q2",
+        "quarter": "Q2",
+        "strategic_goal": "Leverage spring and summer travel enthusiasm.",
+        "primary_message": "Start your summer adventures with zero emissions.",
+        "suggested_actions": {
+          "action_1": "Promote long-range capabilities and the Supercharger network for holiday trips.",
+          "action_2": "Organize extended test-drive events."
+        },
+        "psychological_factor": "Anticipation and Planning"
+      }
+    },
+    "objection_archetypes": {
+      "count": 16,
+      "exists": true,
+      "sample": {
+        "objection_id": "7fdb7f7b-3ef4-4edc-8e39-42958dff4c88",
+        "archetype_id": "6ba7b811-9dad-11d1-80b4-00c04fd430c8"
+      }
+    },
+    "ev_subsidies_poland": {
+      "count": 4,
+      "exists": true,
+      "sample": {
+        "id": 2,
+        "program_name": "Zielony Samochód",
+        "program_type": "nfos",
+        "max_amount_pln": 70000.0,
+        "eligibility_criteria": {
+          "min_fleet": 1,
+          "customer_type": [
+            "business"
+          ]
+        },
+        "requirements": "Firma z siedzibą w Polsce, samochód na działalność",
+        "valid_from": "2024-01-01",
+        "valid_until": "2025-12-31",
+        "region": null,
+        "additional_benefits": null,
+        "application_process": null,
+        "documentation_required": null,
+        "created_at": "2025-08-14T07:34:27.721021",
+        "updated_at": "2025-08-14T07:34:27.721021"
+      }
+    },
+    "tax_regulations_business": {
+      "count": 4,
+      "exists": true,
+      "sample": {
+        "id": 1,
+        "regulation_type": "VAT",
+        "description": "Zerowa stawka VAT na samochody elektryczne",
+        "benefit_amount": "0%",
+        "applies_to": "BEV",
+        "calculation_formula": null,
+        "example_calculation": null,
+        "legal_basis": null,
+        "valid_from": "2024-01-01",
+        "valid_until": "2026-12-31",
+        "special_conditions": null,
+        "created_at": "2025-08-14T07:34:27.721021"
+      }
+    },
+    "solar_panels_compatibility": {
+      "count": 0,
+      "exists": true,
+      "sample": null
+    },
+    "charging_infrastructure_pl": {
+      "count": 6,
+      "exists": true,
+      "sample": {
+        "id": 1,
+        "network_name": "Tesla Supercharger",
+        "station_type": "supercharger",
+        "location_city": "Warszawa",
+        "location_address": null,
+        "coordinates": null,
+        "max_power_kw": 250,
+        "connectors_count": 8,
+        "price_per_kwh": 1.75,
+        "price_time_based": null,
+        "availability_24h": null,
+        "payment_methods": null,
+        "amenities": null,
+        "tesla_compatible": true,
+        "created_at": "2025-08-14T07:34:27.721021",
+        "updated_at": "2025-08-14T07:34:27.721021"
+      }
+    },
+    "company_fleet_benefits": {
+      "count": 0,
+      "exists": true,
+      "sample": null
+    },
+    "leasing_calculator_params": {
+      "count": 0,
+      "exists": true,
+      "sample": null
+    },
+    "insurance_providers_ev": {
+      "count": 0,
+      "exists": true,
+      "sample": null
+    },
+    "service_network_tesla": {
+      "count": 0,
+      "exists": true,
+      "sample": null
+    },
+    "winter_performance_data": {
+      "count": 6,
+      "exists": true,
+      "sample": {
+        "id": 1,
+        "model_name": "Model 3 LR",
+        "temperature_celsius": -10,
+        "range_loss_percent": 25.0,
+        "heating_consumption_kw": null,
+        "charging_speed_reduction_percent": null,
+        "heat_pump_equipped": false,
+        "preconditioning_time_minutes": null,
+        "real_world_tips": null,
+        "test_conditions": null,
+        "source": null,
+        "created_at": "2025-08-14T07:34:27.721021"
+      }
+    },
+    "tco_calculation_templates": {
+      "count": 3,
+      "exists": true,
+      "sample": {
+        "id": 1,
+        "customer_segment": "private",
+        "annual_mileage_km": 15000,
+        "ownership_period_years": 5,
+        "fuel_cost_per_100km": 45.0,
+        "electricity_cost_per_100km": 12.0,
+        "service_cost_annual_ice": null,
+        "service_cost_annual_ev": null,
+        "depreciation_ice_percent": null,
+        "depreciation_ev_percent": null,
+        "insurance_difference": null,
+        "tax_benefits_annual": null,
+        "total_savings_period": 49500.0,
+        "break_even_months": null,
+        "assumptions": null,
+        "created_at": "2025-08-14T07:34:27.721021"
+      }
+    },
+    "session_metadata": {
+      "count": 179,
+      "exists": true,
+      "sample": {
+        "id": "f465ebd3-53f5-4803-8b60-1b9b234b9d10",
+        "session_id": "f465ebd3-53f5-4803-8b60-1b9b234b9d10",
+        "started_at": "2025-08-13T18:45:20.140984+00:00",
+        "ended_at": null,
+        "user_id": "default-user",
+        "client_context": {},
+        "session_outcome": null,
+        "total_interactions": 0,
+        "archetype_evolution": [],
+        "final_scores": {},
+        "created_at": "2025-08-13T18:45:20.140984+00:00",
+        "updated_at": "2025-08-13T18:45:20.140984+00:00"
+      }
+    },
+    "interaction_logs": {
+      "count": 0,
+      "exists": true,
+      "sample": null
+    },
+    "analysis_feedback": {
+      "count": 0,
+      "exists": true,
+      "sample": null
+    },
+    "dynamic_context": {
+      "count": 0,
+      "exists": true,
+      "sample": null
+    },
+    "psychometric_profiles": {
+      "count": 0,
+      "exists": true,
+      "sample": null
+    },
+    "llm_suggestions": {
+      "count": 1,
+      "exists": true,
+      "sample": {
+        "id": "1f523d37-e6e9-4f63-9497-93a0abddfc01",
+        "session_id": null,
+        "suggestion_type": "KRYTYCZNA",
+        "priority": 1,
+        "title": "Brakujący Playbook: Apartment Dweller",
+        "reasoning": "40% klientów pyta o ładowanie w mieszkaniu, ale nie mamy dedykowanej strategii",
+        "proposed_data": {
+          "key_tactics": [
+            "portable_charging",
+            "public_network_emphasis",
+            "workplace_charging"
+          ],
+          "new_archetype": "Urban Apartment Dweller"
+        },
+        "user_feedback": {},
+        "status": "pending",
+        "category": "archetype",
+        "created_at": "2025-08-13T12:30:00.341907+00:00",
+        "updated_at": "2025-08-13T12:30:00.341907+00:00"
+      }
+    },
+    "user_expertise": {
+      "count": 0,
+      "exists": true,
+      "sample": null
+    },
+    "data_updates_log": {
+      "count": 5,
+      "exists": true,
+      "sample": {
+        "id": "1554a3fc-dc44-4171-a0e3-207817f4f1f8",
+        "session_id": "af006782-b3bb-40af-87cb-030e82c70b0b",
+        "user_id": null,
+        "user_input": "Dodaj promocję: Model Y -15% do końca miesiąca",
+        "user_intent": "ADD_PROMOTION",
+        "llm_analysis": {
+          "confidence": 0.95,
+          "extracted_fields": {
+            "model": "Model Y",
+            "end_date": "2025-01-31",
+            "discount_type": "percentage",
+            "discount_value": 15
+          },
+          "validation_status": "passed"
+        },
+        "llm_confidence": 0.95,
+        "sql_executed": "INSERT INTO promotions (name, promotion_type, discount_amount_pln, end_date) VALUES ('Model Y January Discount', 'Percentage', 15, '2025-01-31')",
+        "table_affected": "promotions",
+        "operation_type": "INSERT",
+        "records_affected": 1,
+        "success": true,
+        "error_message": null,
+        "execution_time_ms": 245,
+        "validation_time_ms": null,
+        "rollback_data": null,
+        "data_before": null,
+        "data_after": null,
+        "validation_results": {
+          "warnings": [
+            "End date is very close"
+          ],
+          "suggestions": [
+            "Consider extending promotion period"
+          ],
+          "validation_errors": []
+        },
+        "user_confirmation": true,
+        "requires_review": false,
+        "source_ip": null,
+        "user_agent": null,
+        "operation_notes": "Przykładowy rekord testowy - można usunąć",
+        "created_at": "2025-08-13T13:16:13.074014",
+        "confirmed_at": null,
+        "reviewed_at": null
+      }
+    },
+    "scoring_config": {
+      "count": 1,
+      "exists": true,
+      "sample": {
+        "id": "da2e20f9-46bc-4ee0-ae80-73b134f359a9",
+        "is_active": true,
+        "feature_weights": {
+          "f_fit": 0.2,
+          "f_tone": 0.15,
+          "f_slots": 0.1,
+          "f_intent": 0.2,
+          "f_latency": 0.1,
+          "f_momentum": 0.2,
+          "f_length_trend": 0.05,
+          "f_objection_intensity": -0.2
+        },
+        "thresholds": {
+          "cta_min_purchase": 65,
+          "churn_deescalation": 70,
+          "cta_min_confidence": 0.7
+        },
+        "ema_alpha": 0.4,
+        "notes": "Konfiguracja startowa - zgodna ze specyfikacją BIGDECODER.md §12.2",
+        "created_at": "2025-08-13T13:59:55.815258"
+      }
+    },
+    "buying_signals": {
+      "count": 9,
+      "exists": true,
+      "sample": {
+        "id": "b0faf459-3460-4ef8-b3a6-9e171028184b",
+        "signal_name": "Color Interest",
+        "description": "Klient pyta o konkretne kolory zamiast ogólnie o auto",
+        "confidence_weight": 0.7,
+        "typical_timing": "middle_stage",
+        "archetype_correlation": {},
+        "detection_patterns": [
+          "jaki kolor",
+          "dostępne kolory",
+          "czy jest w",
+          "kolor samochodu"
+        ],
+        "created_by": "user",
+        "created_at": "2025-08-13T12:30:00.341907+00:00"
+      }
+    },
+    "temporal_behavior_patterns": {
+      "count": 4,
+      "exists": true,
+      "sample": {
+        "id": "bd5c9577-c75c-4b0a-a70f-c83044b43fbf",
+        "pattern_name": "evening_clients",
+        "time_range": "after_18:00",
+        "time_range_structured": null,
+        "client_characteristics": {
+          "tired": true,
+          "decisive": true,
+          "pre_researched": true
+        },
+        "recommended_approach": {
+          "be_concrete": true,
+          "avoid_small_talk": true,
+          "focus_essentials": true
+        },
+        "confidence_multiplier": 1.0,
+        "effectiveness_data": null,
+        "sample_size": 0,
+        "statistical_significance": null,
+        "created_by_session": null,
+        "validated": false,
+        "notes": null,
+        "created_at": "2025-08-13T13:59:55.815258",
+        "updated_at": "2025-08-13T13:59:55.815258"
+      }
+    }
+  }
+}

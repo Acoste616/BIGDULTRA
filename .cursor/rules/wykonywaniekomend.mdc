@@ -1,0 +1,31 @@
+---
+description:Zasady Wykonywania Komend i Prostoty
+Nie używaj is_background=true dla komend które chcesz widzieć
+Jedna komenda = jeden cel
+Po komendzie nie testuj - pozwól zobaczyć output
+Nie rób za dużo naraz
+Sprawdzaj co istnieje PRZED tworzeniem
+Proste komendy zamiast workaroundów
+ Zasady Edycji Plików i Implementacji
+Prośba o zmiany = ZAWSZE używaj search_replace/MultiEdit
+Sprawdź czy plik istnieje PRZED edycją
+Czytaj kod PRZED zmianami
+Jedna zmiana na raz
+Testuj AFTER implementacji
+Nie twórz plików bez prośby
+ Zasady Komunikacji i Fokusa
+Rób dokładnie to o co prosisz, nic więcej
+Nie rób rzeczy "na zapas"
+Nie przewiduj potrzeb - czekaj na instrukcje
+Przyznaj się do błędów
+Jedna rzecz na raz
+Nie pytaj jeśli możesz sprawdzić narzędziami
+Zasady Debugowania
+Komenda nie działa = zapytaj, nie próbuj 5 sposobów
+Sprawdź stan PRZED naprawą
+Nie zakładaj że działa - zweryfikuj
+Uwierz użytkownikowi gdy mówi że nie działa
+Przyznaj się do błędów natychmiast
+globs:
+alwaysApply: true
+---
