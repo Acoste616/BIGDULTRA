@@ -44,6 +44,7 @@ class CustomerAnalysisRequest(BaseModel):
     """Request analizy wypowiedzi klienta"""
     session_id: Optional[str] = None
     input_text: str = Field(..., min_length=1, max_length=5000)
+    newest_input: Optional[str] = None
     mode: AnalysisMode = AnalysisMode.ANALYZER
     include_enriched_data: bool = True
     
@@ -87,9 +88,11 @@ class SessionResponse(BaseModel):
     status: SessionStatus
     metadata: Optional[Dict[str, Any]] = None
 
+import uuid
+
 class ArchetypeInfo(BaseModel):
     """Informacje o archetypie"""
-    id: int
+    id: uuid.UUID
     name: str
     confidence: float = Field(..., ge=0.0, le=1.0)
     description: Optional[str] = None
@@ -97,7 +100,7 @@ class ArchetypeInfo(BaseModel):
 
 class ObjectionInfo(BaseModel):
     """Informacje o obiekcji"""
-    id: int
+    id: uuid.UUID
     type: str
     text: str
     hidden: bool = False
@@ -106,7 +109,7 @@ class ObjectionInfo(BaseModel):
 
 class StrategyInfo(BaseModel):
     """Informacje o strategii"""
-    playbook_id: int
+    playbook_id: uuid.UUID
     approach: str
     key_points: List[str]
     estimated_effectiveness: Optional[float] = None

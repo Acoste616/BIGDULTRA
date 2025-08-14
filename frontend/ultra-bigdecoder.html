@@ -372,19 +372,27 @@
                         <!-- Client Response -->
                         <div class="response-section rounded-lg p-4 mb-4">
                             <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-semibold text-white">💬 Powiedz Klientowi</h4>
-                                <div class="flex space-x-2">
-                                    <button class="btn-secondary px-3 py-1 rounded text-xs" id="copyResponseBtn">
-                                        📋 Kopiuj
-                                    </button>
-                                    <button class="btn-secondary px-3 py-1 rounded text-xs" id="useResponseBtn">
-                                        ✅ Użyte
-                                    </button>
-                                </div>
+                                <h4 class="font-semibold text-white">💬 Sugerowana Odpowiedź dla Klienta</h4>
                             </div>
                             <p class="text-white leading-relaxed" id="clientResponseText">
                                 <!-- Generated response here -->
                             </p>
+                        </div>
+
+                        <!-- Client's Actual Response Input -->
+                        <div class="bg-gray-800 rounded-lg p-4">
+                            <h4 class="font-semibold text-white mb-3">🗣️ Wpisz odpowiedź klienta</h4>
+                            <textarea
+                                id="clientActualResponse"
+                                placeholder="Co odpowiedział klient? Np. 'To brzmi ciekawie, proszę o więcej szczegółów.'"
+                                rows="3"
+                                class="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                            ></textarea>
+                            <div class="text-right mt-2">
+                                <button class="btn-tesla px-4 py-2 rounded-lg text-sm" id="submitFeedbackBtn">
+                                    Prześlij Feedback
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Follow-up Question (conditional) -->
@@ -601,6 +609,7 @@
         let websocket = null;
         let analysisHistory = [];
         let currentArchetype = null;
+        let previousInput = "";
 
         // DOM Elements
         const elements = {
@@ -698,14 +707,61 @@
                 elements.observationInput.value = '';
                 elements.charCount.textContent = '0';
                 elements.responsePanel.classList.add('hidden');
+                previousInput = "";
             });
+
+            // Submit feedback
+            document.getElementById('submitFeedbackBtn').addEventListener('click', submitClientFeedback);
+        }
+
+        async function submitClientFeedback() {
+            const feedbackText = document.getElementById('clientActualResponse').value.trim();
+            if (!feedbackText) {
+                showError("Pole odpowiedzi klienta nie może być puste.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/feedback/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: currentSession?.session_id,
+                        feedback_type: 'comment', // Using 'comment' type for this
+                        content: feedbackText,
+                        metadata: {
+                            context: 'client_actual_response',
+                            ai_suggestion: elements.clientResponseText.textContent
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Feedback submission failed');
+
+                // Clear the textarea and provide feedback
+                document.getElementById('clientActualResponse').value = '';
+                console.log('Feedback submitted successfully');
+                // Optionally, add a toast notification here
+
+                // Optionally, trigger a new analysis with this new context
+                elements.observationInput.value += `\\nKlient odpowiedział: "${feedbackText}"`;
+                performAnalysis();
+
+
+            } catch (error) {
+                console.error('Feedback submission error:', error);
+                showError('Błąd przesyłania feedbacku.');
+            }
         }
 
         async function performAnalysis() {
-            const observation = elements.observationInput.value.trim();
-            if (!observation) return;
+            const observation = elements.observationInput.value;
+            if (!observation.trim()) return;
 
             showAnalysisLoading();
+
+            // Calculate the new part of the input
+            const newTextInput = observation.replace(previousInput, "").trim();
 
             try {
                 const response = await fetch(`${CONFIG.API_BASE_URL}/analyze`, {
@@ -715,7 +771,8 @@
                     },
                         body: JSON.stringify({
                             session_id: currentSession?.session_id,
-                        input_text: observation,
+                        input_text: observation.trim(),
+                        newest_input: newTextInput,
                         mode: 'analyzer'
                     })
                 });
@@ -724,7 +781,11 @@
 
                 const result = await response.json();
                 displayAnalysisResult(result);
-                addToHistory(observation, result);
+                addToHistory(observation.trim(), result);
+
+                // Update previous input state
+                previousInput = observation;
+
                 hideAnalysisLoading();
 
             } catch (error) {

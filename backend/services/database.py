@@ -6,7 +6,7 @@ from supabase import create_client, Client
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import json
-import uuid
+from uuid import UUID, uuid4
 
 class DatabaseService:
     """Serwis obsługi bazy danych Supabase"""
@@ -29,8 +29,8 @@ class DatabaseService:
         try:
             # Zapisz do session_metadata - wykorzystuj PEŁNY schemat Supabase
             result = self.client.table("session_metadata").insert({
-                "id": session_data["session_id"],
-                "session_id": session_data["session_id"],
+                "id": str(session_data["session_id"]),
+                "session_id": str(session_data["session_id"]),
                 "user_id": session_data.get("user_id", "anonymous"),
                 "client_context": session_data.get("client_context", {}),
                 "archetype_evolution": session_data.get("archetype_evolution", []),
@@ -81,11 +81,11 @@ class DatabaseService:
     
     # ==================== ARCHETYPY ====================
     
-    async def get_archetype(self, archetype_id: int) -> Optional[Dict[str, Any]]:
+    async def get_archetype(self, archetype_id: UUID) -> Optional[Dict[str, Any]]:
         """Pobiera dane archetypu"""
         
         result = self.client.table("archetypes").select("*").eq(
-            "id", archetype_id
+            "id", str(archetype_id)
         ).single().execute()
         
         return result.data if result.data else None
@@ -98,11 +98,11 @@ class DatabaseService:
     
     # ==================== OBIEKCJE ====================
     
-    async def get_objection(self, objection_id: int) -> Optional[Dict[str, Any]]:
+    async def get_objection(self, objection_id: UUID) -> Optional[Dict[str, Any]]:
         """Pobiera dane obiekcji"""
         
         result = self.client.table("objections").select("*").eq(
-            "id", objection_id
+            "id", str(objection_id)
         ).single().execute()
         
         return result.data if result.data else None
@@ -115,14 +115,14 @@ class DatabaseService:
     
     async def get_objections_for_archetype(
         self, 
-        archetype_id: int
+        archetype_id: UUID
     ) -> List[Dict[str, Any]]:
         """Pobiera obiekcje powiązane z archetypem"""
         
         # Pobierz mapowanie
         mapping = self.client.table("objection_archetypes").select(
             "objection_id"
-        ).eq("archetype_id", archetype_id).execute()
+        ).eq("archetype_id", str(archetype_id)).execute()
         
         if not mapping.data:
             return []
@@ -138,11 +138,11 @@ class DatabaseService:
     
     # ==================== PLAYBOOKI ====================
     
-    async def get_playbook(self, playbook_id: int) -> Optional[Dict[str, Any]]:
+    async def get_playbook(self, playbook_id: UUID) -> Optional[Dict[str, Any]]:
         """Pobiera dane playbooka"""
         
         result = self.client.table("playbooks").select("*").eq(
-            "id", playbook_id
+            "id", str(playbook_id)
         ).single().execute()
         
         return result.data if result.data else None
@@ -155,12 +155,12 @@ class DatabaseService:
     
     async def get_playbook_for_archetype(
         self, 
-        archetype_id: int
+        archetype_id: UUID
     ) -> Optional[Dict[str, Any]]:
         """Pobiera playbook dla archetypu"""
         
         result = self.client.table("playbooks").select("*").eq(
-            "target_archetype_id", archetype_id
+            "target_archetype_id", str(archetype_id)
         ).limit(1).execute()
         
         return result.data[0] if result.data else None
@@ -192,8 +192,8 @@ class DatabaseService:
         
         try:
             self.client.table("interaction_logs").insert({
-                "id": str(uuid.uuid4()),
-                "session_id": interaction_data.get("session_id"),
+                "id": str(uuid4()),
+                "session_id": str(interaction_data.get("session_id")),
                 "input_text": interaction_data.get("input_text"),
                 "analysis": interaction_data.get("analysis"),
                 "enriched_data": {
@@ -209,8 +209,8 @@ class DatabaseService:
         try:
             # Zapisz też do data_updates_log
             self.client.table("data_updates_log").insert({
-                "id": str(uuid.uuid4()),
-                "session_id": interaction_data.get("session_id"),
+                "id": str(uuid4()),
+                "session_id": str(interaction_data.get("session_id")),
                 "user_input": interaction_data.get("input_text"),
                 "llm_analysis": interaction_data.get("analysis"),
                 "table_affected": "interaction_logs",
@@ -228,8 +228,8 @@ class DatabaseService:
         """Tworzy sugestię AI"""
         
         result = self.client.table("llm_suggestions").insert({
-            "id": str(uuid.uuid4()),
-            "session_id": suggestion_data.get("session_id"),
+            "id": str(uuid4()),
+            "session_id": str(suggestion_data.get("session_id")),
             "suggestion_type": suggestion_data.get("suggestion_type"),
             "priority": suggestion_data.get("priority"),
             "title": suggestion_data.get("title"),
@@ -246,8 +246,8 @@ class DatabaseService:
         """Zapisuje feedback użytkownika"""
         
         self.client.table("analysis_feedback").insert({
-            "id": str(uuid.uuid4()),
-            "session_id": feedback_data.get("session_id"),
+            "id": str(uuid4()),
+            "session_id": str(feedback_data.get("session_id")),
             "feedback_type": feedback_data.get("feedback_type"),
             "content": feedback_data.get("content"),
             "rating": feedback_data.get("rating"),
@@ -259,8 +259,8 @@ class DatabaseService:
         """Zapisuje wiedzę ekspercką użytkownika"""
         
         self.client.table("user_expertise").insert({
-            "id": str(uuid.uuid4()),
-            "session_id": expertise_data.get("session_id"),
+            "id": str(uuid4()),
+            "session_id": str(expertise_data.get("session_id")),
             "knowledge_category": expertise_data.get("knowledge_category"),
             "extracted_insights": expertise_data.get("extracted_insights"),
             "confidence_score": expertise_data.get("confidence_score", 0.9),
@@ -316,14 +316,37 @@ class DatabaseService:
         ).execute()
         stats["total_interactions"] = interactions.count if hasattr(interactions, 'count') else 0
         
-        # Top archetypy (placeholder - wymaga agregacji)
-        stats["top_archetypes"] = []
-        
-        # Top obiekcje (placeholder - wymaga agregacji)
+        # Top archetypy - uproszczona agregacja po stronie klienta
+        try:
+            from collections import Counter
+
+            logs = self.client.table("interaction_logs").select("analysis").execute()
+            if logs.data:
+                archetype_names = [
+                    log['analysis']['archetype']['name']
+                    for log in logs.data
+                    if log.get('analysis') and log['analysis'].get('archetype') and log['analysis']['archetype'].get('name')
+                ]
+                stats['top_archetypes'] = [{"name": name, "count": count} for name, count in Counter(archetype_names).most_common(5)]
+
+                confidences = [
+                    log['analysis']['archetype']['confidence']
+                    for log in logs.data
+                    if log.get('analysis') and log['analysis'].get('archetype') and log['analysis']['archetype'].get('confidence')
+                ]
+                if confidences:
+                    stats['average_confidence'] = sum(confidences) / len(confidences)
+                else:
+                    stats['average_confidence'] = 0
+            else:
+                stats["top_archetypes"] = []
+                stats['average_confidence'] = 0
+        except Exception:
+            stats["top_archetypes"] = []
+            stats['average_confidence'] = 0
+
+        # Top obiekcje (placeholder - wymaga bardziej złożonej logiki JSON)
         stats["top_objections"] = []
-        
-        # Średnia pewność (placeholder)
-        stats["average_confidence"] = 0.75
         
         # Współczynnik konwersji (placeholder)
         stats["conversion_rate"] = 0.15
@@ -354,7 +377,7 @@ class DatabaseService:
         
         # Utwórz nową
         self.client.table("scoring_config").insert({
-            "id": str(uuid.uuid4()),
+            "id": str(uuid4()),
             "is_active": True,
             "feature_weights": config_data.get("feature_weights"),
             "thresholds": config_data.get("thresholds"),
@@ -412,6 +435,44 @@ class DatabaseService:
             return result.data[0] if result.data else None
         
         return None
+
+    # ==================== PAMIĘĆ DŁUGOTERMINOWA ====================
+
+    async def save_dynamic_context(self, context_data: Dict[str, Any]) -> None:
+        """Zapisuje nowy fragment wiedzy do pamięci długoterminowej"""
+        try:
+            self.client.table("dynamic_context").insert({
+                "id": str(uuid4()),
+                "context_type": context_data.get("context_type", "general"),
+                "source": context_data.get("source", "user_command"),
+                "content_summary": context_data.get("content_summary"),
+                "entities": context_data.get("entities"),
+                "tags": context_data.get("tags"),
+                "relevance_score": context_data.get("relevance_score", 0.8),
+                "created_at": datetime.now().isoformat()
+            }).execute()
+        except Exception as e:
+            print(f"Error saving dynamic context: {e}")
+            pass
+
+    async def save_psychometric_profile(self, profile_data: Dict[str, Any]) -> None:
+        """Archiwizuje profil psychometryczny klienta po sesji"""
+        try:
+            self.client.table("psychometric_profiles").insert({
+                "id": str(uuid4()),
+                "session_id": str(profile_data.get("session_id")),
+                "final_archetype_id": str(profile_data.get("final_archetype_id")),
+                "disc_scores": profile_data.get("disc_scores"),
+                "schwartz_values": profile_data.get("schwartz_values"),
+                "fun_drive_score": profile_data.get("fun_drive_score"),
+                "ovn_score": profile_data.get("ovn_score"),
+                "key_triggers": profile_data.get("key_triggers"),
+                "key_objections": profile_data.get("key_objections"),
+                "created_at": datetime.now().isoformat()
+            }).execute()
+        except Exception as e:
+            print(f"Error saving psychometric profile: {e}")
+            pass
     
     async def close(self):
         """Zamyka połączenie z bazą (placeholder dla async)"""
