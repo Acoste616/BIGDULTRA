@@ -455,6 +455,8 @@ async def generate_strategy(
 ):
     """Generuje strategię sprzedażową z wykorzystaniem 18 playbooków"""
     
+    print(f"🔍 DEBUG: Generowanie strategii dla session_id: {session_id}, mode: {mode}")
+    
     # Pobierz pełne dane klienta
     customer_data = await extended_db_service.get_comprehensive_customer_data(session_id)
     
@@ -463,6 +465,9 @@ async def generate_strategy(
     
     profile = customer_data.get("session", {}).get("profile", {})
     last_interaction = customer_data.get("interactions", [{}])[-1] if customer_data.get("interactions") else {}
+    
+    print(f"🔍 DEBUG: Profil klienta: {profile}")
+    print(f"🔍 DEBUG: Ostatnia interakcja: {last_interaction}")
     
     # Generuj strategię przez ekspertowego klienta
     strategy = await expert_ai_client.generate_coaching_response(
@@ -936,6 +941,6 @@ if __name__ == "__main__":
         "main_refactored:app",
         host="0.0.0.0",
         port=8000,
-        reload=True,
+        reload=False,  # Wyłącz reload dla stabilności
         log_level="info"
     )

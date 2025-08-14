@@ -494,28 +494,29 @@ Odpowiedz po polsku, konkretnie, z danymi liczbowymi.
 """
         
         try:
-            response = await self.client.post(
-                f"{self.base_url}/v1/chat/completions",
-                json={
-                    "model": self.model,
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": coach_prompt}
-                    ],
+            # Użyj właściwego Ollama Client API
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": coach_prompt}
+            ]
+            
+            response = self.client.chat(
+                model=self.model,
+                messages=messages,
+                options={
                     "temperature": 0.6,
-                    "max_tokens": 1000
+                    "num_predict": 1000
                 }
             )
             
-            if response.status_code == 200:
-                result = response.json()
+            if response and 'message' in response:
                 return {
-                    "coaching": result["choices"][0]["message"]["content"],
+                    "coaching": response['message'].get('content', ''),
                     "mode": mode,
                     "timestamp": datetime.now().isoformat()
                 }
             else:
-                raise Exception(f"API error: {response.status_code}")
+                raise Exception("Invalid response format")
                 
         except Exception as e:
             return {
@@ -526,4 +527,6 @@ Odpowiedz po polsku, konkretnie, z danymi liczbowymi.
     
     async def close(self):
         """Zamyka połączenie"""
-        await self.client.aclose()
+        # Ollama Client nie ma metody aclose()
+        # Połączenie jest zamykane automatycznie
+        pass
