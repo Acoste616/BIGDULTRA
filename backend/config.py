@@ -12,9 +12,9 @@ class Config:
     SUPABASE_KEY = os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpZXBxbmlteGNoZ294Z2lqYXViIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDk4NjU1MywiZXhwIjoyMDcwNTYyNTUzfQ.CniELMUV7u8islNXXJuZKEtFbBVPdX4af-bmQw-q6e4")
     
     # Ollama/gptoss API (konfiguruj przez zmienne środowiskowe)
-    OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "a7dfc1795a334faabd087aa23db865a5.eEcGvOSthxDW9RI098udwBkZ")
+    OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "")
     OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "https://ollama.com")  # ollama api
-    OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "GPToss120b")  # Model gptoss 120b
+    OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gpt-oss:120b")  # Model gpt-oss:120b
     
     # Model Parameters
     DEFAULT_TEMPERATURE = 0.7

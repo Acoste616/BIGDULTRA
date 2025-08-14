@@ -17,10 +17,9 @@ if __name__ == "__main__":
             os.environ["SUPABASE_URL"] = "https://idcwfdhpjgtpvuvbpfvp.supabase.co"
         if "SUPABASE_KEY" not in os.environ:
             os.environ["SUPABASE_KEY"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkY3dmZGhwamd0cHZ1dmJwZnZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQwMTQzMDcsImV4cCI6MjA0OTU5MDMwN30.RM9iyaZFJdztGUMXq2MQW8W1b37AcW4p9EJ8hAMmPYE"
-        if "OLLAMA_API_KEY" not in os.environ:
-            os.environ["OLLAMA_API_KEY"] = "44f238f9fd6f4c4f9048fce51c52d45e.0AFg36FTByB3_Oc9KcpNqWQW"
         if "OLLAMA_BASE_URL" not in os.environ:
-            os.environ["OLLAMA_BASE_URL"] = "http://localhost:11434"
+            os.environ["OLLAMA_BASE_URL"] = "https://ollama.com"
+        # OLLAMA_API_KEY powinien być ustawiony w środowisku; brak domyślnej wartości dla bezpieczeństwa
     
     print("""
 ╔══════════════════════════════════════════════════════════════╗

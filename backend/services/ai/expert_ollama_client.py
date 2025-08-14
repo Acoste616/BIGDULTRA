@@ -525,5 +525,17 @@ Odpowiedz po polsku, konkretnie, z danymi liczbowymi.
             }
     
     async def close(self):
-        """Zamyka połączenie"""
-        await self.client.aclose()
+        """Zamyka połączenie klienta Ollama (obsługa sync/async)."""
+        try:
+            # Preferuj async jeśli dostępne
+            aclose = getattr(self.client, "aclose", None)
+            if callable(aclose):
+                await aclose()
+                return
+            # Fallback na sync close
+            close = getattr(self.client, "close", None)
+            if callable(close):
+                close()
+        except Exception:
+            # Bezpieczny no-op
+            pass

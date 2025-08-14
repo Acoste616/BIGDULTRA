@@ -3,6 +3,7 @@ Test funkcjonalności quick_reply - czy generuje porady dla sprzedawcy
 """
 import asyncio
 import json
+import os
 from services.ai.expert_ollama_client import ExpertOllamaClient
 from services.database_extended import ExtendedDatabaseService
 
@@ -16,10 +17,18 @@ async def test_quick_reply_coaching():
         key='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZpZXBxbmlteGNoZ294Z2lqYXViIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDk4NjU1MywiZXhwIjoyMDcwNTYyNTUzfQ.CniELMUV7u8islNXXJuZKEtFbBVPdX4af-bmQw-q6e4'
     )
     
+    # Konfiguracja AI z ENV
+    base_url = os.getenv("OLLAMA_BASE_URL", "https://ollama.com")
+    api_key = os.getenv("OLLAMA_API_KEY", "")
+    model = os.getenv("OLLAMA_MODEL", "gpt-oss:120b")
+
+    if not api_key:
+        print("⚠️ Brak OLLAMA_API_KEY w środowisku - wywołania AI mogą użyć fallbacku")
+    
     ai_client = ExpertOllamaClient(
-        base_url="https://api.gptoss.com",
-        api_key="a7dfc1795a334faabd087aa23db865a5.eEcGvOSthxDW9RI098udwBkZ",
-        model="gptoss120b",
+        base_url=base_url,
+        api_key=api_key,
+        model=model,
         db_service=db_service
     )
     
@@ -100,7 +109,7 @@ async def test_quick_reply_coaching():
     
     print("\n" + "="*60)
     print("📋 PODSUMOWANIE TESTÓW:")
-    print("✅ Prompt AI zaktualizowany na coaching dla sprzedawcy")
+    print("✅ Prompt AI zaktualizowany na coaching dla sprzedawcy") 
     print("✅ Frontend wyświetla 'LIVE COACHING - Co powiedzieć klientowi'") 
     print("✅ Fallback analysis generuje porady z prefiksem 'PORADA:'")
     print("🎯 System jest gotowy do live coaching!")
