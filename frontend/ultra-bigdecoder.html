@@ -888,9 +888,7 @@
         try {
             const response = await fetch(`${CONFIG.API_BASE_URL}/analyze`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                    headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     session_id: currentSession?.session_id,
                     input_text: observation,
@@ -898,16 +896,22 @@
                 })
             });
 
-            if (!response.ok) throw new Error('Analysis failed');
+                const result = await response.json();
 
-            const result = await response.json();
+                if (!response.ok) {
+                    // Wyciągnij szczegóły błędu z odpowiedzi backendu
+                    const errorDetail = result.detail || `HTTP error! status: ${response.status}`;
+                    throw new Error(errorDetail);
+                }
+
             displayAnalysisResult(result);
             addToHistory(observation, result);
-            hideAnalysisLoading();
 
         } catch (error) {
             console.error('Analysis error:', error);
-            showError('Błąd analizy. Spróbuj ponownie.');
+                // Pokaż szczegółowy błąd użytkownikowi
+                showError(`Błąd Analizy: ${error.message}`);
+            } finally {
             hideAnalysisLoading();
         }
     }
@@ -993,8 +997,10 @@
                     const bgColor = isCritical ? 'bg-red-900/40 border-red-400' : 'bg-blue-900/30 border-blue-400';
                     const textColor = isCritical ? 'text-red-300' : 'text-blue-300';
                     
+                    const escapedQuestion = questionText.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                    const escapedReason = reason.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
                     questionsHTML += `<div class="p-3 ${bgColor} rounded-lg border-l-4 cursor-pointer hover:bg-opacity-60 transition-all" 
-                                            onclick="openQuestionModal('${questionText}', ${isCritical}, '${reason}')">`;
+                                            onclick='openQuestionModal("${escapedQuestion}", ${isCritical}, "${escapedReason}")'>`;
                     questionsHTML += `<div class="font-semibold ${textColor} mb-1">${icon} ${isCritical ? 'KLUCZOWE:' : 'Pytanie:'}</div>`;
                     questionsHTML += `<div class="text-white">${questionText}</div>`;
                     if (reason && isCritical) {
@@ -1128,12 +1134,20 @@
 
         // Oryginalna funkcja displayAnalysisResult (dla pełnej analizy)
         function displayAnalysisResult(result) {
+            // Walidacja kluczowych obiektów w odpowiedzi JSON
+            if (!result || typeof result !== 'object') {
+                showError("Otrzymano nieprawidłową odpowiedź od serwera.");
+                return;
+            }
+
             updateRealTimeResponse(result);
             
-            // Update metrics
-            if (result.scores) {
+            // Update metrics z walidacją
+            if (result.scores && typeof result.scores === 'object') {
                 updateMetrics(result.scores);
                 updateAdvancedMetrics(result.scores);
+            } else {
+                console.warn("Brak obiektu 'scores' w odpowiedzi. Metryki nie zostaną zaktualizowane.");
             }
 
             // ULTRA 3.0: Pokazuj następne kroki jeśli są
@@ -1684,8 +1698,20 @@
         }
 
         function showError(message) {
-            // Simple error display - could be enhanced with toast notifications
             console.error(message);
+            const responsePanel = elements.responsePanel;
+            const clientResponseText = elements.clientResponseText;
+
+            responsePanel.classList.remove('hidden');
+            responsePanel.classList.add('fade-in');
+
+            clientResponseText.innerHTML = `
+                <div class="p-4 bg-red-900/50 rounded-lg border-l-4 border-red-500">
+                    <div class="font-semibold text-red-400 mb-2">🚨 Wystąpił Błąd</div>
+                    <div class="text-white text-sm font-mono">${message}</div>
+                    <div class="text-xs text-red-300 mt-3">Sprawdź konsolę przeglądarki (F12) i logi backendu po więcej szczegółów.</div>
+                </div>
+            `;
             hideAnalysisLoading();
         }
 

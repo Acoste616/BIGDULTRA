@@ -494,30 +494,33 @@ Odpowiedz po polsku, konkretnie, z danymi liczbowymi.
 """
         
         try:
-            response = await self.client.post(
-                f"{self.base_url}/v1/chat/completions",
-                json={
-                    "model": self.model,
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": coach_prompt}
-                    ],
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": coach_prompt}
+            ]
+
+            response = self.client.chat(
+                model=self.model,
+                messages=messages,
+                options={
                     "temperature": 0.6,
-                    "max_tokens": 1000
                 }
             )
             
-            if response.status_code == 200:
-                result = response.json()
-                return {
-                    "coaching": result["choices"][0]["message"]["content"],
-                    "mode": mode,
-                    "timestamp": datetime.now().isoformat()
-                }
+            coaching_text = ""
+            if response and 'message' in response and 'content' in response['message']:
+                coaching_text = response['message']['content']
             else:
-                raise Exception(f"API error: {response.status_code}")
+                raise Exception("Invalid response structure from Ollama API")
+
+            return {
+                "coaching": coaching_text,
+                "mode": mode,
+                "timestamp": datetime.now().isoformat()
+            }
                 
         except Exception as e:
+            print(f"❌ Błąd w generate_coaching_response: {e}")
             return {
                 "coaching": "Pokaż klientowi kalkulator TCO i wspomnij o dopłacie 27,000 PLN.",
                 "mode": mode,

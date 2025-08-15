@@ -2,7 +2,7 @@
 
 **Inteligentny Asystent Sprzedaży Tesla** - System AI wspomagający proces sprzedaży poprzez analizę psychometryczną klientów i generowanie spersonalizowanych strategii w czasie rzeczywistym.
 
-## 🎯 STATUS: SYSTEM W PEŁNI OPERACYJNY! (16.01.2025)
+## 🎯 STATUS: Backend ustabilizowany (14.08.2025)
 
 ### ✨ Główne Funkcje
 
@@ -57,8 +57,8 @@ UltraBIGDecoder/
 
 #### 1️⃣ Backend (terminal 1):
 ```bash
-cd backend
-python main_refactored.py
+# Uruchomienie z katalogu głównego projektu
+python -m uvicorn backend.main_refactored:app --host 0.0.0.0 --port 8000
 # Czekaj na: "✅ System ULTRA BIGDECODER 3.0 gotowy!"
 ```
 
@@ -120,10 +120,10 @@ Utwórz plik `.env` w głównym katalogu:
 SUPABASE_URL=your_supabase_url
 SUPABASE_KEY=your_service_role_key
 
-# AI - gptoss 120b
-GPTOSS_API_URL=https://api.gptoss.com
-GPTOSS_API_KEY=your_gptoss_api_key
-GPTOSS_MODEL=gptoss120b
+# AI - Ollama
+OLLAMA_BASE_URL="http://localhost:11434" # lub adres zdalnego serwera
+OLLAMA_API_KEY="your_ollama_api_key" # jeśli wymagany
+OLLAMA_MODEL="gpt-oss:120b"
 
 # Security
 SECRET_KEY=generate_secure_random_key
@@ -269,7 +269,10 @@ python -m http.server 3000
 **Rozwiązanie:** Upewnij się że backend używa `main_refactored.py` (nie main.py)
 
 ### Problem: Błąd 500 przy analizie
-**Rozwiązanie:** Sprawdź czy wszystkie metody aliasowe są w ExtendedDatabaseService
+**Rozwiązanie:** Sprawdź czy wszystkie metody aliasowe są w `ExtendedDatabaseService`. Po ostatnich zmianach (14.08.2025) błędy te powinny być w większości wyeliminowane.
+
+### Problem: Błąd przy instalacji zależności (dependency conflict)
+**Rozwiązanie:** Plik `backend/requirements.txt` został naprawiony. Jeśli problem wystąpi ponownie, upewnij się, że wersja `httpx` jest kompatybilna z biblioteką `ollama`.
 
 ## 📞 Wsparcie
 

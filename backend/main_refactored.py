@@ -369,12 +369,14 @@ async def analyze_customer(request: CustomerAnalysisRequest):
             await extended_db_service.log_interaction({
                 "session_id": request.session_id,
                 "input_text": request.input_text,
-                "analysis": analysis,
-                "archetype": analysis.get("archetype"),
-                "response": analysis.get("client_response"),
-                "confidence": analysis.get("confidence", 0)
+                "analysis_result": analysis, # Używamy poprawnej nazwy kolumny
+                "archetype_detected": analysis.get("archetype", {}).get("name"),
+                "response_generated": analysis.get("client_response"),
+                "confidence_score": analysis.get("confidence", 0)
             })
-        except:
+        except Exception as e:
+            print(f"Błąd podczas logowania interakcji: {e}")
+            # Nie przerywamy działania, jeśli logowanie się nie powiedzie
             pass
         
         # Zapewnij zgodność struktury obiekcji z modelem Pydantic
